@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Compass, Hash } from 'lucide-react';
+import { Plus, Compass, MessageCircle, UserPlus } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 function ServerIcon({ server, isActive, onClick, unreadCount }) {
@@ -52,31 +52,25 @@ function ServerIcon({ server, isActive, onClick, unreadCount }) {
   );
 }
 
-export default function ServerSidebar({ servers, activeServerId, onSelectServer, onCreateServer, onDiscoverServer }) {
+export default function ServerSidebar({ servers, activeServerId, onSelectServer, onCreateServer, onDiscoverServer, onOpenDMs, onOpenFriends, dmView }) {
   return (
     <div className="w-[72px] bg-[#070707] flex flex-col items-center py-3 gap-0 border-r border-white/5 overflow-y-auto flex-shrink-0">
-      {/* Direct Messages / Home */}
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <motion.button
-              onClick={() => onSelectServer(null)}
-              animate={{ borderRadius: activeServerId === null ? '12px' : '50%' }}
-              transition={{ duration: 0.2 }}
-              className={`w-12 h-12 flex items-center justify-center mb-2 transition-colors ${
-                activeServerId === null
-                  ? 'bg-red-600 text-white rounded-xl'
-                  : 'bg-[#1a1a1a] text-gray-400 hover:bg-red-600 hover:text-white rounded-full'
-              }`}
-            >
-              <Hash className="w-5 h-5" />
-            </motion.button>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="bg-[#111] border-white/10 text-white">
-            Home
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {/* Direct Messages */}
+      <NavIcon
+        label="Direct Messages"
+        isActive={dmView === 'dm'}
+        onClick={onOpenDMs}
+        icon={<MessageCircle className="w-5 h-5" />}
+      />
+
+      {/* Find Friends */}
+      <NavIcon
+        label="Find Friends"
+        isActive={dmView === 'friends'}
+        onClick={onOpenFriends}
+        icon={<UserPlus className="w-5 h-5" />}
+        color="green"
+      />
 
       {/* Divider */}
       <div className="w-8 h-[2px] bg-white/10 rounded-full mb-2" />
