@@ -51,6 +51,9 @@ import Home from './pages/Home';
 import Services from './pages/Services';
 import Learning from './pages/Learning';
 import Community from './pages/Community';
+import Forum from './pages/Forum';
+import ForumThread from './pages/ForumThread';
+import CreateForumPost from './pages/CreateForumPost';
 import __Layout from './Layout.jsx';
 
 
@@ -59,6 +62,9 @@ export const PAGES = {
     "Services": Services,
     "Learning": Learning,
     "Community": Community,
+    "Forum": Forum,
+    "ForumThread": ForumThread,
+    "CreateForumPost": CreateForumPost,
 }
 
 export const pagesConfig = {
