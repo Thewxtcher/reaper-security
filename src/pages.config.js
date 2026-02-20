@@ -59,6 +59,8 @@ import CodeHub from './pages/CodeHub';
 import CodeProject from './pages/CodeProject';
 import CreateCodeProject from './pages/CreateCodeProject';
 import CodeEditor from './pages/CodeEditor';
+import Contact from './pages/Contact';
+import Research from './pages/Research';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +77,8 @@ export const PAGES = {
     "CodeProject": CodeProject,
     "CreateCodeProject": CreateCodeProject,
     "CodeEditor": CodeEditor,
+    "Contact": Contact,
+    "Research": Research,
 }
 
 export const pagesConfig = {
