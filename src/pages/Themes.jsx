@@ -48,14 +48,14 @@ export default function Themes() {
     checkAuth();
   }, []);
 
-  const { data: themes, isLoading } = useQuery({
+  const { data: themes = [], isLoading } = useQuery({
     queryKey: ['themes', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
       return base44.entities.Theme.filter({ owner_email: user.email });
     },
     enabled: !!user?.email,
-    initialData: []
+    refetchOnWindowFocus: true,
   });
 
   const createThemeMutation = useMutation({
@@ -98,7 +98,9 @@ export default function Themes() {
     mutationFn: async (themeId) => {
       // Deactivate ALL user themes first
       const userThemes = await base44.entities.Theme.filter({ owner_email: user.email });
-      await Promise.all(userThemes.map(t => base44.entities.Theme.update(t.id, { is_active: false })));
+      for (const t of userThemes) {
+        await base44.entities.Theme.update(t.id, { is_active: false });
+      }
       // Then activate the selected one
       if (themeId) {
         await base44.entities.Theme.update(themeId, { is_active: true });
@@ -107,6 +109,7 @@ export default function Themes() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['themes', user?.email] });
       queryClient.invalidateQueries({ queryKey: ['activeTheme'] });
+      queryClient.invalidateQueries({ queryKey: ['themes'] });
     }
   });
 
