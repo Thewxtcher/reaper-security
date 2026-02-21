@@ -226,6 +226,15 @@ export default function DMPanel({ conversation, user }) {
         <div ref={bottomRef} />
       </div>
 
+      {/* Read receipt */}
+      {isLastRead && lastMsg?.author_email === user?.email && (
+        <div className="px-4 pb-1 flex justify-end">
+          <span className="text-[10px] text-blue-400 flex items-center gap-1">
+            <Check className="w-3 h-3" />Seen
+          </span>
+        </div>
+      )}
+
       <div className="px-4 pb-4 pt-2 flex-shrink-0">
         <div className="flex items-center gap-2 bg-[#1a1a1a] rounded-xl border border-white/10 px-4 py-2">
           <input
@@ -240,6 +249,9 @@ export default function DMPanel({ conversation, user }) {
             <Send className="w-4 h-4" />
           </button>
         </div>
+        {sendMutation.isPending && (
+          <div className="text-[10px] text-gray-600 mt-1 text-right">Sending...</div>
+        )}
       </div>
     </div>
   );
