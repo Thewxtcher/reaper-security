@@ -162,18 +162,36 @@ export default function DMPanel({ conversation, user }) {
 
   const handleSend = () => {
     if (!input.trim()) return;
+    const content = input.trim();
     sendMutation.mutate({
       conversation_id: conversation.id,
       author_email: user.email,
       author_name: user.full_name || user.email.split('@')[0],
-      content: input.trim(),
+      content,
+      read_by: [user.email],
     });
     setInput('');
+    // Mark conversation last message
+    base44.entities.Conversation.update(conversation.id, {
+      last_message: content.slice(0, 80),
+      last_message_at: new Date().toISOString(),
+    });
   };
 
   const otherName = conversation?.type === 'group'
     ? conversation.name
     : conversation?.participant_names?.find(n => n !== (user?.full_name || user?.email)) || 'User';
+
+  // Mark messages as read on open
+  useEffect(() => {
+    if (!messages.length || !user?.email) return;
+    messages.filter(m => !m.read_by?.includes(user.email)).forEach(m => {
+      base44.entities.DirectMessage.update(m.id, { read_by: [...(m.read_by || []), user.email] });
+    });
+  }, [messages.length]);
+
+  const lastMsg = messages[messages.length - 1];
+  const isLastRead = lastMsg?.read_by?.some(e => e !== user.email);
 
   return (
     <div className="flex-1 flex flex-col bg-[#111] min-w-0">
