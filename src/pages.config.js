@@ -60,7 +60,6 @@ import ForumThread from './pages/ForumThread';
 import Home from './pages/Home';
 import Learning from './pages/Learning';
 import Marketplace from './pages/Marketplace';
-import Profile from './pages/Profile';
 import Research from './pages/Research';
 import ResearchPost from './pages/ResearchPost';
 import Services from './pages/Services';
@@ -87,7 +86,6 @@ export const PAGES = {
     "Home": Home,
     "Learning": Learning,
     "Marketplace": Marketplace,
-    "Profile": Profile,
     "Research": Research,
     "ResearchPost": ResearchPost,
     "Services": Services,
