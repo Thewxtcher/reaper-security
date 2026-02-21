@@ -96,20 +96,16 @@ export default function Themes() {
 
   const activateThemeMutation = useMutation({
     mutationFn: async (themeId) => {
-      // First deactivate all themes for this user
+      // Deactivate ALL user themes first
       const userThemes = await base44.entities.Theme.filter({ owner_email: user.email });
-      for (const theme of userThemes) {
-        if (theme.is_active) {
-          await base44.entities.Theme.update(theme.id, { is_active: false });
-        }
-      }
-      // Then activate the selected theme
+      await Promise.all(userThemes.map(t => base44.entities.Theme.update(t.id, { is_active: false })));
+      // Then activate the selected one
       if (themeId) {
         await base44.entities.Theme.update(themeId, { is_active: true });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['themes'] });
+      queryClient.invalidateQueries({ queryKey: ['themes', user?.email] });
       queryClient.invalidateQueries({ queryKey: ['activeTheme'] });
     }
   });
