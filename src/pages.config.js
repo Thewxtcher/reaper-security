@@ -47,48 +47,56 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Home from './pages/Home';
-import Services from './pages/Services';
-import Learning from './pages/Learning';
-import Community from './pages/Community';
-import Forum from './pages/Forum';
-import ForumThread from './pages/ForumThread';
-import CreateForumPost from './pages/CreateForumPost';
-import ForumRules from './pages/ForumRules';
+import CodeEditor from './pages/CodeEditor';
 import CodeHub from './pages/CodeHub';
 import CodeProject from './pages/CodeProject';
-import CreateCodeProject from './pages/CreateCodeProject';
-import CodeEditor from './pages/CodeEditor';
+import Community from './pages/Community';
 import Contact from './pages/Contact';
-import Research from './pages/Research';
-import Themes from './pages/Themes';
+import CreateCodeProject from './pages/CreateCodeProject';
+import CreateForumPost from './pages/CreateForumPost';
+import Forum from './pages/Forum';
+import ForumRules from './pages/ForumRules';
+import ForumThread from './pages/ForumThread';
+import Home from './pages/Home';
+import Learning from './pages/Learning';
 import Marketplace from './pages/Marketplace';
 import Profile from './pages/Profile';
-import UserProfile from './pages/UserProfile';
+import Research from './pages/Research';
 import ResearchPost from './pages/ResearchPost';
+import Services from './pages/Services';
+import Themes from './pages/Themes';
+import UserProfile from './pages/UserProfile';
+import CyberLabs from './pages/CyberLabs';
+import ThreatIntel from './pages/ThreatIntel';
+import AIAssistant from './pages/AIAssistant';
+import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "Services": Services,
-    "Learning": Learning,
-    "Community": Community,
-    "Forum": Forum,
-    "ForumThread": ForumThread,
-    "CreateForumPost": CreateForumPost,
-    "ForumRules": ForumRules,
+    "CodeEditor": CodeEditor,
     "CodeHub": CodeHub,
     "CodeProject": CodeProject,
-    "CreateCodeProject": CreateCodeProject,
-    "CodeEditor": CodeEditor,
+    "Community": Community,
     "Contact": Contact,
-    "Research": Research,
-    "Themes": Themes,
+    "CreateCodeProject": CreateCodeProject,
+    "CreateForumPost": CreateForumPost,
+    "Forum": Forum,
+    "ForumRules": ForumRules,
+    "ForumThread": ForumThread,
+    "Home": Home,
+    "Learning": Learning,
     "Marketplace": Marketplace,
     "Profile": Profile,
-    "UserProfile": UserProfile,
+    "Research": Research,
     "ResearchPost": ResearchPost,
+    "Services": Services,
+    "Themes": Themes,
+    "UserProfile": UserProfile,
+    "CyberLabs": CyberLabs,
+    "ThreatIntel": ThreatIntel,
+    "AIAssistant": AIAssistant,
+    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {
