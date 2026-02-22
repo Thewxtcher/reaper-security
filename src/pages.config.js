@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AIAssistant from './pages/AIAssistant';
 import CodeEditor from './pages/CodeEditor';
 import CodeHub from './pages/CodeHub';
 import CodeProject from './pages/CodeProject';
@@ -54,6 +55,7 @@ import Community from './pages/Community';
 import Contact from './pages/Contact';
 import CreateCodeProject from './pages/CreateCodeProject';
 import CreateForumPost from './pages/CreateForumPost';
+import CyberLabs from './pages/CyberLabs';
 import Forum from './pages/Forum';
 import ForumRules from './pages/ForumRules';
 import ForumThread from './pages/ForumThread';
@@ -63,14 +65,15 @@ import Research from './pages/Research';
 import ResearchPost from './pages/ResearchPost';
 import Services from './pages/Services';
 import Themes from './pages/Themes';
-import UserProfile from './pages/UserProfile';
-import CyberLabs from './pages/CyberLabs';
 import ThreatIntel from './pages/ThreatIntel';
-import AIAssistant from './pages/AIAssistant';
+import UserProfile from './pages/UserProfile';
+import AdminDashboard from './pages/AdminDashboard';
+import Marketplace from './pages/Marketplace';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AIAssistant": AIAssistant,
     "CodeEditor": CodeEditor,
     "CodeHub": CodeHub,
     "CodeProject": CodeProject,
@@ -78,6 +81,7 @@ export const PAGES = {
     "Contact": Contact,
     "CreateCodeProject": CreateCodeProject,
     "CreateForumPost": CreateForumPost,
+    "CyberLabs": CyberLabs,
     "Forum": Forum,
     "ForumRules": ForumRules,
     "ForumThread": ForumThread,
@@ -87,10 +91,10 @@ export const PAGES = {
     "ResearchPost": ResearchPost,
     "Services": Services,
     "Themes": Themes,
-    "UserProfile": UserProfile,
-    "CyberLabs": CyberLabs,
     "ThreatIntel": ThreatIntel,
-    "AIAssistant": AIAssistant,
+    "UserProfile": UserProfile,
+    "AdminDashboard": AdminDashboard,
+    "Marketplace": Marketplace,
 }
 
 export const pagesConfig = {
