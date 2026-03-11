@@ -26,10 +26,14 @@ function beep(freq, type = 'square', dur = 0.05, vol = 0.025) {
 }
 
 export const sfx = {
-  type: () => beep(300 + Math.random() * 900, 'square', 0.025, 0.012),
-  click: () => beep(1100, 'square', 0.04, 0.02),
-  menuOpen: () => { beep(300, 'sawtooth', 0.07, 0.025); setTimeout(() => beep(550, 'sine', 0.05, 0.02), 55); },
-  menuClose: () => { beep(550, 'sawtooth', 0.05, 0.02); setTimeout(() => beep(300, 'sine', 0.07, 0.02), 45); },
+  // Single consistent tick for typing
+  type: () => beep(820, 'square', 0.018, 0.018),
+  // Short click for buttons
+  click: () => beep(1050, 'square', 0.035, 0.022),
+  // Subtle hover blip for menu items
+  hover: () => beep(660, 'sine', 0.022, 0.012),
+  menuOpen: () => { beep(400, 'sine', 0.06, 0.022); setTimeout(() => beep(600, 'sine', 0.05, 0.018), 60); },
+  menuClose: () => beep(400, 'sine', 0.05, 0.018),
   send: () => { beep(700, 'sine', 0.08, 0.035); setTimeout(() => beep(950, 'sine', 0.06, 0.025), 70); },
   notif: () => { beep(880, 'sine', 0.1, 0.04); setTimeout(() => beep(1100, 'sine', 0.08, 0.04), 110); },
   join: () => [440, 523, 659].forEach((f, i) => setTimeout(() => beep(f, 'sine', 0.12, 0.035), i * 90)),
@@ -45,16 +49,19 @@ export const sfx = {
 };
 
 let _lastType = 0;
+let _lastHover = 0;
+let _lastClick = 0;
+
 const throttledType = () => {
   const now = Date.now();
-  if (now - _lastType > 45) { sfx.type(); _lastType = now; }
+  if (now - _lastType > 40) { sfx.type(); _lastType = now; }
 };
 
 export default function SoundSystem() {
   useEffect(() => {
-    // Play boot sequence once on load
     setTimeout(() => sfx.boot(), 400);
 
+    // Typing sfx — consistent tick on any input/textarea keypress
     const onKey = (e) => {
       const skip = ['Shift','Control','Alt','Meta','CapsLock','Tab','Escape',
         'ArrowUp','ArrowDown','ArrowLeft','ArrowRight','F1','F2','F3','F4',
@@ -66,8 +73,31 @@ export default function SoundSystem() {
       }
     };
 
+    // Global click sound for buttons, links, and nav items
+    const onClick = (e) => {
+      const now = Date.now();
+      if (now - _lastClick < 60) return;
+      const t = e.target.closest('button, a, [role="menuitem"], [role="option"]');
+      if (t) { sfx.click(); _lastClick = now; }
+    };
+
+    // Hover sound for nav/menu items
+    const onMouseOver = (e) => {
+      const now = Date.now();
+      if (now - _lastHover < 80) return;
+      const t = e.target.closest('button, a, [role="menuitem"]');
+      if (t) { sfx.hover(); _lastHover = now; }
+    };
+
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('mouseover', onMouseOver, true);
+
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onClick, true);
+      document.removeEventListener('mouseover', onMouseOver, true);
+    };
   }, []);
 
   return null;
