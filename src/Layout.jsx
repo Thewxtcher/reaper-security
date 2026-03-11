@@ -259,7 +259,7 @@ export default function Layout({ children, currentPageName }) {
                         <Palette className="w-4 h-4" />Themes
                       </Link>
                     </DropdownMenuItem>
-                    {user?.role === 'admin' && (
+                    {user?.email === 'reaperappofficial@gmail.com' && (
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl('AdminDashboard')} className="text-red-400 hover:text-red-300 flex items-center gap-2 cursor-pointer">
                           <BarChart2 className="w-4 h-4" />Admin Panel
