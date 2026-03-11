@@ -221,6 +221,12 @@ export default function Community() {
     return (
       <div className="flex h-screen bg-[#0a0a0a] pt-16 overflow-hidden">
         {pushNotifs}
+        <div className="fixed top-0 left-0 right-0 h-16 bg-[#0d0d0d] border-b border-white/5 flex items-center px-4 z-40">
+          <Link to={createPageUrl('Home')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-xs font-medium">Back</span>
+          </Link>
+        </div>
         <ServerSidebar
           servers={servers}
           activeServerId={null}
