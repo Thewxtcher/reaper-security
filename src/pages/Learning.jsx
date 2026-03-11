@@ -33,6 +33,101 @@ const topics = [
 
 const categories = ['All', 'Pentesting', 'Network', 'Web Security', 'OSINT', 'Certifications', 'CTF'];
 
+function UploadSection() {
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploaded, setUploaded] = useState([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const inputRef = useRef();
+
+  const handleFiles = (e) => {
+    setFiles(Array.from(e.target.files));
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const handleSubmit = async () => {
+    if (!files.length || !title) return;
+    setUploading(true);
+    const results = [];
+    for (const file of files) {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      results.push({ name: file.name, url: file_url });
+    }
+    setUploaded(results);
+    setFiles([]);
+    setTitle('');
+    setDescription('');
+    setUploading(false);
+  };
+
+  return (
+    <Card className="bg-[#111] border border-white/10">
+      <CardContent className="p-6 space-y-4">
+        {uploaded.length > 0 && (
+          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 space-y-2">
+            <div className="flex items-center gap-2 text-green-400 font-medium text-sm">
+              <CheckCircle className="w-4 h-4" /> Upload successful!
+            </div>
+            {uploaded.map((f, i) => (
+              <a key={i} href={f.url} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-xs text-blue-400 hover:underline">
+                <FileText className="w-3 h-3" /> {f.name}
+              </a>
+            ))}
+            <button onClick={() => setUploaded([])} className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1 mt-1">
+              <X className="w-3 h-3" /> Dismiss
+            </button>
+          </div>
+        )}
+
+        <Input
+          placeholder="Resource title *"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="bg-[#1a1a1a] border-white/10 text-white placeholder:text-gray-500"
+        />
+        <Input
+          placeholder="Short description (optional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="bg-[#1a1a1a] border-white/10 text-white placeholder:text-gray-500"
+        />
+
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onClick={() => inputRef.current.click()}
+          className="border-2 border-dashed border-white/10 hover:border-white/30 rounded-lg p-8 text-center cursor-pointer transition-colors"
+        >
+          <Upload className="w-8 h-8 text-gray-500 mx-auto mb-3" />
+          {files.length > 0 ? (
+            <p className="text-sm text-white">{files.map(f => f.name).join(', ')}</p>
+          ) : (
+            <>
+              <p className="text-gray-400 text-sm">Drag & drop files here or click to browse</p>
+              <p className="text-gray-600 text-xs mt-1">PDFs, ZIPs, docs, scripts — any format</p>
+            </>
+          )}
+          <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
+        </div>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={!files.length || !title || uploading}
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 w-full"
+        >
+          {uploading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4 mr-2" /> Upload Content</>}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Learning() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
