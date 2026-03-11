@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Globe, Code, BookOpen, Wrench, Award, Youtube, Monitor, FolderOpen,
-  ExternalLink, Search, BookMarked
+  ExternalLink, Search, BookMarked, Upload, CheckCircle, Loader2, X, FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { base44 } from '@/api/base44Client';
 
 const driveBase = 'https://drive.google.com/drive/folders/1PV_jxVP0BeUe1nzGa5FfePnU7p7lYvTE?usp=drive_link';
 
