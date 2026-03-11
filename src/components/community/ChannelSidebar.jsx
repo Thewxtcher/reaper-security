@@ -79,7 +79,7 @@ function CategoryGroup({ category, channels, activeChannelId, onSelectChannel, o
   );
 }
 
-export default function ChannelSidebar({ server, channels, activeChannelId, onSelectChannel, onAddChannel, user, memberRole }) {
+export default function ChannelSidebar({ server, channels, activeChannelId, onSelectChannel, onAddChannel, user, memberRole, onOpenSettings }) {
   const grouped = channels.reduce((acc, ch) => {
     const cat = ch.category || 'Text Channels';
     if (!acc[cat]) acc[cat] = [];
