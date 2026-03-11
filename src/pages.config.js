@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AIAssistant from './pages/AIAssistant';
+import AdminDashboard from './pages/AdminDashboard';
 import CodeEditor from './pages/CodeEditor';
 import CodeHub from './pages/CodeHub';
 import CodeProject from './pages/CodeProject';
@@ -61,21 +62,21 @@ import ForumRules from './pages/ForumRules';
 import ForumThread from './pages/ForumThread';
 import Home from './pages/Home';
 import Learning from './pages/Learning';
+import Marketplace from './pages/Marketplace';
+import Profile from './pages/Profile';
 import Research from './pages/Research';
 import ResearchPost from './pages/ResearchPost';
+import SSHTerminal from './pages/SSHTerminal';
 import Services from './pages/Services';
 import Themes from './pages/Themes';
 import ThreatIntel from './pages/ThreatIntel';
 import UserProfile from './pages/UserProfile';
-import AdminDashboard from './pages/AdminDashboard';
-import Profile from './pages/Profile';
-import Marketplace from './pages/Marketplace';
-import SSHTerminal from './pages/SSHTerminal';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AIAssistant": AIAssistant,
+    "AdminDashboard": AdminDashboard,
     "CodeEditor": CodeEditor,
     "CodeHub": CodeHub,
     "CodeProject": CodeProject,
@@ -89,16 +90,15 @@ export const PAGES = {
     "ForumThread": ForumThread,
     "Home": Home,
     "Learning": Learning,
+    "Marketplace": Marketplace,
+    "Profile": Profile,
     "Research": Research,
     "ResearchPost": ResearchPost,
+    "SSHTerminal": SSHTerminal,
     "Services": Services,
     "Themes": Themes,
     "ThreatIntel": ThreatIntel,
     "UserProfile": UserProfile,
-    "AdminDashboard": AdminDashboard,
-    "Profile": Profile,
-    "Marketplace": Marketplace,
-    "SSHTerminal": SSHTerminal,
 }
 
 export const pagesConfig = {

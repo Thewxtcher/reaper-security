@@ -13,9 +13,11 @@ import VideoCallPanel from '../components/community/VideoCallPanel';
 import MemberPanel from '../components/community/MemberPanel';
 import CreateServerModal from '../components/community/CreateServerModal';
 import AddChannelModal from '../components/community/AddChannelModal';
+import ServerSettingsModal from '../components/community/ServerSettingsModal';
 import DMSidebar from '../components/community/DMSidebar';
 import DMPanel from '../components/community/DMPanel';
 import FindFriendsPanel from '../components/community/FindFriendsPanel';
+import { usePresence } from '../components/community/TypingIndicator';
 
 // view modes: 'server' | 'dm' | 'friends'
 export default function Community() {
