@@ -20,6 +20,7 @@ import FindFriendsPanel from '../components/community/FindFriendsPanel';
 import DiscoverServersPanel from '../components/community/DiscoverServersPanel';
 import { usePresence } from '../components/community/TypingIndicator';
 import MemberProfilePopup from '../components/community/MemberProfilePopup';
+import PushNotifications from '../components/PushNotifications';
 
 // view modes: 'server' | 'dm' | 'friends'
 export default function Community() {
