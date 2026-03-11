@@ -157,15 +157,14 @@ export default function VideoCallPanel({ channel, user, onLeave }) {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStreamRef.current = stream;
         setLocalStream(stream);
-        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       } catch {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           localStreamRef.current = stream;
           setLocalStream(stream);
           setIsCamOff(true);
-        } catch {
-          setPermissionError('Camera and microphone access denied.');
+        } catch (err) {
+          setPermissionError('Camera and microphone access denied. Please allow permissions in your browser and try again.');
         }
       }
 
