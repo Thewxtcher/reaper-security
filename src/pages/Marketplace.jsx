@@ -194,6 +194,7 @@ export default function Marketplace() {
   const [category, setCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const [showCreateTheme, setShowCreateTheme] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
