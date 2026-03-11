@@ -6,8 +6,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Code, Search, ChevronUp, Download, FolderOpen, User, Tag,
-  Terminal, LogIn
+  Terminal, LogIn, Folder
 } from 'lucide-react';
+import CodeFoldersPanel from '../components/codehub/CodeFoldersPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -38,12 +39,14 @@ export default function CodeHub() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('browse');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkAuth = async () => {
       const auth = await base44.auth.isAuthenticated();
       setIsAuthenticated(auth);
+      if (auth) setUser(await base44.auth.me());
     };
     checkAuth();
   }, []);
@@ -88,21 +91,26 @@ export default function CodeHub() {
       {/* Tab Navigation */}
       <section className="pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-4 mb-8">
-            <Button
-              variant={activeTab === 'browse' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('browse')}
-              className={activeTab === 'browse' 
-                ? 'bg-white/10 text-white border-white/20' 
-                : 'border-gray-700 text-gray-400'}
-            >
-              <FolderOpen className="w-4 h-4 mr-2" />
-              Browse Projects
-            </Button>
+          <div className="flex gap-3 mb-8 flex-wrap">
+            {[
+              { id: 'browse', label: 'Browse Projects', Icon: FolderOpen },
+              { id: 'folders', label: 'My Folders', Icon: Folder },
+            ].map(tab => (
+              <Button key={tab.id}
+                variant={activeTab === tab.id ? 'default' : 'outline'}
+                onClick={() => setActiveTab(tab.id)}
+                className={activeTab === tab.id ? 'bg-white/10 text-white border-white/20' : 'border-gray-700 text-gray-400 hover:text-white'}>
+                <tab.Icon className="w-4 h-4 mr-2" />{tab.label}
+              </Button>
+            ))}
             <Link to={createPageUrl('CodeEditor')}>
               <Button variant="outline" className="border-gray-700 text-gray-400 hover:text-white">
-                <Terminal className="w-4 h-4 mr-2" />
-                Code Editor
+                <Terminal className="w-4 h-4 mr-2" />Code Editor
+              </Button>
+            </Link>
+            <Link to={createPageUrl('SSHTerminal')}>
+              <Button variant="outline" className="border-gray-700 text-gray-400 hover:text-white">
+                <Terminal className="w-4 h-4 mr-2" />SSH Terminal
               </Button>
             </Link>
           </div>
