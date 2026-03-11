@@ -266,6 +266,7 @@ export default function Community() {
             activeChannelId={activeChannel?.id}
             onSelectChannel={(ch) => { setActiveChannel(ch); setInVideoCall(false); }}
             onAddChannel={(category) => setAddChannelCategory(category)}
+            onOpenSettings={() => setShowServerSettings(true)}
             user={user}
             memberRole={memberRole}
           />
