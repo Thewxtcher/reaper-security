@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../../utils';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Search, Users } from 'lucide-react';
+import { Search, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +39,7 @@ export default function AdminUsers({ user, isOwner }) {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Users & Access</h1>
-        <p className="text-gray-400 text-sm">{allUsers.length} total users</p>
+        <p className="text-gray-400 text-sm">{isLoading ? 'Loading...' : `${allUsers.length} total users`}</p>
       </div>
 
       <div className="relative mb-4 max-w-md">
@@ -59,7 +61,7 @@ export default function AdminUsers({ user, isOwner }) {
                   <div className="text-white font-medium text-sm">{u.full_name || 'Unknown'}</div>
                   <div className="text-gray-500 text-xs">{u.email}</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {skill && (
                     <Badge className="bg-yellow-500/10 text-yellow-400 border-yellow-500/20 text-xs border">
                       {skill.tier} • {skill.xp} XP
@@ -68,7 +70,11 @@ export default function AdminUsers({ user, isOwner }) {
                   <Badge className={u.role === 'admin' ? 'bg-red-500/20 text-red-400 border border-red-500/20' : 'bg-white/5 text-gray-400'}>
                     {u.role}
                   </Badge>
-                  <span className="text-gray-600 text-xs">{new Date(u.created_date).toLocaleDateString()}</span>
+                  <span className="text-gray-600 text-xs hidden md:block">{new Date(u.created_date).toLocaleDateString()}</span>
+                  <Link to={createPageUrl(`UserProfile?email=${u.email}`)} target="_blank"
+                    className="text-gray-600 hover:text-white transition-colors">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </CardContent>
             </Card>
