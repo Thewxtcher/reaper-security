@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 
-// Shared typing state per channel stored in a simple entity polling approach
-// We use a presence heartbeat in the ServerMember entity for online/idle/offline
-
 export function usePresence(user, serverId) {
   useEffect(() => {
     if (!user?.email || !serverId) return;
-    // Set online
     const setStatus = async (status) => {
       try {
         const members = await base44.entities.ServerMember.filter({ server_id: serverId, user_email: user.email });
@@ -19,20 +15,14 @@ export function usePresence(user, serverId) {
 
     setStatus('online');
     const heartbeat = setInterval(() => setStatus('online'), 30000);
-
     const handleVisible = () => setStatus(document.hidden ? 'idle' : 'online');
     document.addEventListener('visibilitychange', handleVisible);
-
-    const handleFocus = () => setStatus('online');
-    const handleBlur = () => setStatus('idle');
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', () => setStatus('online'));
+    window.addEventListener('blur', () => setStatus('idle'));
 
     return () => {
       clearInterval(heartbeat);
       document.removeEventListener('visibilitychange', handleVisible);
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
       setStatus('offline');
     };
   }, [user?.email, serverId]);
@@ -40,57 +30,93 @@ export function usePresence(user, serverId) {
 
 export function useTyping(channelId, user) {
   const [typingUsers, setTypingUsers] = useState([]);
-  const typingRef = useRef({});
-  const isTypingRef = useRef(false);
   const timerRef = useRef(null);
+  const recordIdRef = useRef(null);
 
-  // Poll for typing state via a lightweight key in localStorage + entity subscription
+  // Subscribe to typing status changes for this channel
   useEffect(() => {
     if (!channelId || !user?.email) return;
 
-    const key = `typing_${channelId}`;
-    const checkTyping = () => {
+    // Load initial state
+    const load = async () => {
       try {
-        const raw = localStorage.getItem(key);
-        if (!raw) { setTypingUsers([]); return; }
-        const data = JSON.parse(raw);
+        const records = await base44.entities.TypingStatus.filter({ channel_id: channelId });
         const now = Date.now();
-        const active = Object.entries(data)
-          .filter(([email, ts]) => email !== user.email && now - ts < 4000)
-          .map(([email]) => email.split('@')[0]);
+        const active = records.filter(r =>
+          r.user_email !== user.email &&
+          r.last_typed &&
+          now - new Date(r.last_typed).getTime() < 5000
+        ).map(r => r.user_name || r.user_email.split('@')[0]);
         setTypingUsers(active);
       } catch {}
     };
 
-    checkTyping();
-    const interval = setInterval(checkTyping, 500);
-    return () => clearInterval(interval);
+    load();
+
+    // Real-time subscription
+    const unsub = base44.entities.TypingStatus.subscribe(async () => {
+      try {
+        const records = await base44.entities.TypingStatus.filter({ channel_id: channelId });
+        const now = Date.now();
+        const active = records.filter(r =>
+          r.user_email !== user.email &&
+          r.last_typed &&
+          now - new Date(r.last_typed).getTime() < 5000
+        ).map(r => r.user_name || r.user_email.split('@')[0]);
+        setTypingUsers(active);
+      } catch {}
+    });
+
+    // Poll every 2s to expire stale typing indicators
+    const poll = setInterval(async () => {
+      try {
+        const records = await base44.entities.TypingStatus.filter({ channel_id: channelId });
+        const now = Date.now();
+        const active = records.filter(r =>
+          r.user_email !== user.email &&
+          r.last_typed &&
+          now - new Date(r.last_typed).getTime() < 5000
+        ).map(r => r.user_name || r.user_email.split('@')[0]);
+        setTypingUsers(active);
+      } catch {}
+    }, 2000);
+
+    return () => { unsub(); clearInterval(poll); };
   }, [channelId, user?.email]);
 
-  const startTyping = () => {
+  const startTyping = async () => {
     if (!channelId || !user?.email) return;
-    const key = `typing_${channelId}`;
-    try {
-      const raw = localStorage.getItem(key);
-      const data = raw ? JSON.parse(raw) : {};
-      data[user.email] = Date.now();
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch {}
-
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => stopTyping(), 3000);
+    timerRef.current = setTimeout(() => stopTyping(), 4000);
+
+    try {
+      if (recordIdRef.current) {
+        await base44.entities.TypingStatus.update(recordIdRef.current, { last_typed: new Date().toISOString() });
+      } else {
+        const existing = await base44.entities.TypingStatus.filter({ channel_id: channelId, user_email: user.email });
+        if (existing.length > 0) {
+          recordIdRef.current = existing[0].id;
+          await base44.entities.TypingStatus.update(existing[0].id, { last_typed: new Date().toISOString() });
+        } else {
+          const rec = await base44.entities.TypingStatus.create({
+            channel_id: channelId,
+            user_email: user.email,
+            user_name: user.full_name || user.email.split('@')[0],
+            last_typed: new Date().toISOString(),
+          });
+          recordIdRef.current = rec.id;
+        }
+      }
+    } catch {}
   };
 
-  const stopTyping = () => {
-    if (!channelId || !user?.email) return;
-    const key = `typing_${channelId}`;
-    try {
-      const raw = localStorage.getItem(key);
-      const data = raw ? JSON.parse(raw) : {};
-      delete data[user.email];
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch {}
+  const stopTyping = async () => {
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (!recordIdRef.current) return;
+    try {
+      await base44.entities.TypingStatus.delete(recordIdRef.current);
+      recordIdRef.current = null;
+    } catch {}
   };
 
   return { typingUsers, startTyping, stopTyping };
@@ -108,7 +134,7 @@ export default function TypingIndicator({ typingUsers }) {
   return (
     <div className="flex items-center gap-2 px-4 py-1 h-5">
       <div className="flex gap-0.5">
-        {[0,1,2].map(i => (
+        {[0, 1, 2].map(i => (
           <span key={i} className="w-1 h-1 rounded-full bg-gray-400 animate-bounce"
             style={{ animationDelay: `${i * 0.15}s`, animationDuration: '0.8s' }} />
         ))}
