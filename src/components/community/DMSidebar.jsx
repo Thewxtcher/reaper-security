@@ -156,6 +156,14 @@ export default function DMSidebar({ user, activeView, activeConvId, onSelectConv
         <Settings className="w-4 h-4 text-gray-500 hover:text-white cursor-pointer" />
       </div>
 
+      {/* Start DM modal */}
+      <AnimatePresence>
+        {showStartDM && (
+          <StartDMModal user={user} onClose={() => setShowStartDM(false)}
+            onStartDM={async (email, name) => { onStartDM && await onStartDM(email, name); setShowStartDM(false); }} />
+        )}
+      </AnimatePresence>
+
       {/* Create group modal */}
       <AnimatePresence>
         {showGroupModal && (
