@@ -114,6 +114,7 @@ export default function Community() {
     setActiveServer(server);
     setActiveChannel(null);
     setInVideoCall(false);
+    setShowDiscover(false);
     if (server && user) joinMutation.mutate(server);
   };
 
