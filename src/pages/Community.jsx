@@ -186,6 +186,7 @@ export default function Community() {
           activeConvId={activeConversation?.id}
           onSelectConv={(conv) => { setActiveConversation(conv); setDmSubView('conv'); }}
           onSelectView={(v) => { setDmSubView(v); setActiveConversation(null); }}
+          onStartDM={handleStartDM}
         />
         {/* Main panel */}
         {(viewMode === 'friends' || dmSubView === 'friends') && !activeConversation ? (
