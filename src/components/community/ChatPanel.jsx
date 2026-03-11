@@ -362,7 +362,7 @@ export default function ChatPanel({ channel, server, user }) {
           <textarea
             ref={inputRef}
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => { setInput(e.target.value); if (e.target.value) startTyping(); else stopTyping(); }}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             }}
