@@ -57,11 +57,22 @@ export default function Community() {
     checkAuth();
   }, []);
 
-  const { data: servers = [] } = useQuery({
-    queryKey: ['servers'],
-    queryFn: () => base44.entities.Server.list('created_date', 50),
+  // Fetch only servers the user is a member of
+  const { data: myMemberships = [] } = useQuery({
+    queryKey: ['myMemberships', user?.email],
+    queryFn: () => base44.entities.ServerMember.filter({ user_email: user.email }),
+    enabled: !!user?.email,
+  });
+
+  const { data: allServers = [] } = useQuery({
+    queryKey: ['allServersForSidebar'],
+    queryFn: () => base44.entities.Server.list('created_date', 100),
     enabled: !!user,
   });
+
+  // Only show servers user is a member of in the sidebar
+  const joinedServerIds = new Set(myMemberships.map(m => m.server_id));
+  const servers = allServers.filter(s => joinedServerIds.has(s.id));
 
   const { data: channels = [] } = useQuery({
     queryKey: ['channels', activeServer?.id],
