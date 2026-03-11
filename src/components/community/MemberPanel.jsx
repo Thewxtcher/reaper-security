@@ -1,5 +1,5 @@
 import React from 'react';
-import { Circle, Crown, Shield, Mic } from 'lucide-react';
+import { Crown, Shield } from 'lucide-react';
 
 const statusColors = {
   online: 'bg-green-500',
