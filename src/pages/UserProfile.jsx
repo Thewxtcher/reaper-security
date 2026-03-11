@@ -110,6 +110,20 @@ export default function UserProfile() {
           </Card>
         </motion.div>
 
+        {/* Skills */}
+        {skill?.skills?.length > 0 && (
+          <Card className="bg-[#111] border border-white/10 mb-6">
+            <CardContent className="p-4">
+              <p className="text-gray-400 text-xs uppercase tracking-wide mb-3">Skills</p>
+              <div className="flex flex-wrap gap-2">
+                {skill.skills.map(s => (
+                  <Badge key={s} variant="outline" className="text-xs border-white/10 text-gray-300">{s}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <Card className="bg-[#111] border border-white/10">
