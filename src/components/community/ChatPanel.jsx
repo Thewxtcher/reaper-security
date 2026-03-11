@@ -256,22 +256,47 @@ export default function ChatPanel({ channel, server, user }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', channel?.id] }),
   });
 
-  const handleSend = () => {
-    if (!input.trim() || !channel) return;
+  const doSend = (content, type = 'text', attachments = []) => {
+    if (!channel) return;
     stopTyping();
     sendMutation.mutate({
       channel_id: channel.id,
       server_id: server.id,
       author_email: user.email,
       author_name: user.full_name || user.email.split('@')[0],
-      content: input.trim(),
-      type: isCode ? 'code' : 'text',
+      content,
+      type,
+      attachments,
       reply_to_id: replyTo?.id || null,
       reply_to_preview: replyTo ? `${replyTo.author_name}: ${replyTo.content.slice(0, 60)}` : null,
     });
-    setInput('');
     setReplyTo(null);
     setIsCode(false);
+  };
+
+  const handleSend = () => {
+    if (!input.trim() || !channel) return;
+    doSend(input.trim(), isCode ? 'code' : 'text');
+    setInput('');
+  };
+
+  const handleEmojiSelect = (emoji) => {
+    setInput(prev => prev + emoji);
+    inputRef.current?.focus();
+  };
+
+  const handleGifSelect = async (gifUrl, title) => {
+    doSend(gifUrl, 'text', [{ url: gifUrl, name: title || 'GIF', type: 'gif' }]);
+  };
+
+  const handleFileUpload = async (file) => {
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const type = file.type.startsWith('image') ? 'image' : file.type.startsWith('video') ? 'video' : 'file';
+      doSend(file.name, 'text', [{ url: file_url, name: file.name, type }]);
+    } catch (e) { console.error(e); }
+    setUploading(false);
   };
 
   if (!channel) {
