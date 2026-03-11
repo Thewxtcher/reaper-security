@@ -37,6 +37,7 @@ export default function Community() {
   const [dmSubView, setDmSubView] = useState('friends'); // 'friends' | conv id
   const [showCreateServer, setShowCreateServer] = useState(false);
   const [showServerSettings, setShowServerSettings] = useState(false);
+  const [showDiscover, setShowDiscover] = useState(false);
   const [addChannelCategory, setAddChannelCategory] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
   const [inVideoCall, setInVideoCall] = useState(false);
