@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageCircle, UserPlus, Users, Plus, Search, Settings, Pin, X
 } from 'lucide-react';
+import StartDMModal from './StartDMModal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
