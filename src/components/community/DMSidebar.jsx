@@ -97,7 +97,10 @@ export default function DMSidebar({ user, activeView, activeConvId, onSelectConv
       {/* Nav items */}
       <div className="px-2 pt-2">
         {NAV_ITEMS.map(item => (
-          <button key={item.id} onClick={() => item.id === 'create-group' ? setShowGroupModal(true) : onSelectView(item.id)}
+          <button key={item.id} onClick={() => {
+            if (item.id === 'create-group') setShowGroupModal(true);
+            else onSelectView(item.id);
+          }}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left mb-0.5 ${
               activeView === item.id ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
             }`}>
@@ -105,6 +108,11 @@ export default function DMSidebar({ user, activeView, activeConvId, onSelectConv
             <span className="text-sm">{item.label}</span>
           </button>
         ))}
+        <button onClick={() => setShowStartDM(true)}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left mb-0.5 text-gray-400 hover:text-gray-200 hover:bg-white/5">
+          <MessageCircle className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm">Start Direct Message</span>
+        </button>
       </div>
 
       <div className="px-2 my-2">
