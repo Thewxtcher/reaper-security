@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Shield, Users, MessageSquare, Flag, Bell, Package, Wrench, Home, Lock, BarChart2 } from 'lucide-react';
+import { Shield, Users, MessageSquare, Flag, Bell, Package, Wrench, Home, Lock, BarChart2, Server } from 'lucide-react';
 
 import AdminOverview from '../components/admin/AdminOverview';
 import AdminUsers from '../components/admin/AdminUsers';
@@ -11,6 +11,7 @@ import AdminChallenges from '../components/admin/AdminChallenges';
 import AdminToolSuite from '../components/admin/AdminToolSuite';
 import AdminModerators from '../components/admin/AdminModerators';
 import AdminPlugins from '../components/admin/AdminPlugins';
+import AdminServers from '../components/admin/AdminServers';
 
 const OWNER_EMAIL = 'reaperappofficial@gmail.com';
 
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: Home },
   { id: 'tools', label: 'Tool Suite', icon: Wrench },
   { id: 'users', label: 'Users & Access', icon: Users },
+  { id: 'servers', label: 'Servers', icon: Server },
   { id: 'moderators', label: 'Team / Mods', icon: Shield },
   { id: 'posts', label: 'Forum Posts', icon: MessageSquare },
   { id: 'messages', label: 'Messages', icon: BarChart2 },
@@ -100,6 +102,7 @@ export default function AdminDashboard() {
         {tab === 'messages' && <AdminMessages user={user} />}
         {tab === 'contacts' && <AdminContacts />}
         {tab === 'challenges' && <AdminChallenges />}
+        {tab === 'servers' && <AdminServers isOwner={isOwner} />}
         {tab === 'plugins' && <AdminPlugins user={user} isOwner={isOwner} />}
       </div>
     </div>

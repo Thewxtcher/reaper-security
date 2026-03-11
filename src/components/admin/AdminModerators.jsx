@@ -71,7 +71,7 @@ export default function AdminModerators({ user, isOwner, ownerEmail }) {
       </Card>
 
       {/* Add new */}
-      {isOwner && (
+      {(isOwner || user) && (
         <Card className="bg-[#111] border-white/5 mb-6">
           <CardContent className="p-4">
             <h3 className="text-white font-medium mb-3 text-sm">Grant Access</h3>
