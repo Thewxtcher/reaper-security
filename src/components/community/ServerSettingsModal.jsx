@@ -129,6 +129,8 @@ export default function ServerSettingsModal({ server, user, onClose }) {
                     if (confirm('Delete this server? This cannot be undone.')) {
                       await base44.entities.Server.delete(server.id);
                       queryClient.invalidateQueries({ queryKey: ['servers'] });
+                      queryClient.invalidateQueries({ queryKey: ['allServersForSidebar'] });
+                      queryClient.invalidateQueries({ queryKey: ['myMemberships'] });
                       onClose();
                     }
                   }}
