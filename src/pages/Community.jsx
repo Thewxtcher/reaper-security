@@ -226,7 +226,14 @@ export default function Community() {
           onStartDM={handleStartDM}
         />
         {/* Main panel */}
-        {(viewMode === 'friends' || dmSubView === 'friends') && !activeConversation ? (
+        {showDiscover ? (
+          <DiscoverServersPanel
+            user={user}
+            joinedServerIds={joinedServerIds}
+            onJoin={(server) => { setShowDiscover(false); handleSelectServer(server); queryClient.invalidateQueries({ queryKey: ['myMemberships', user.email] }); }}
+            onClose={() => setShowDiscover(false)}
+          />
+        ) : (viewMode === 'friends' || dmSubView === 'friends') && !activeConversation ? (
           <FindFriendsPanel user={user} onStartDM={handleStartDM} />
         ) : activeConversation ? (
           <DMPanel conversation={activeConversation} user={user} />
