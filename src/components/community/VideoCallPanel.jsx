@@ -15,7 +15,7 @@ const ICE_CONFIG = {
 
 const SIGNAL_POLL_MS = 1500;
 
-export default function VideoCallPanel({ channel, user, onLeave }) {
+export default function VideoCallPanel({ channel, server, user, onLeave }) {
   const [localStream, setLocalStream] = useState(null);
   const [remoteVideos, setRemoteVideos] = useState({}); // email -> stream
   const [isMuted, setIsMuted] = useState(false);
