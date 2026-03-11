@@ -5,14 +5,30 @@ import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  User, ArrowLeft, Calendar, FileText, Code, MessageSquare
+  User, ArrowLeft, Code, MessageSquare, Zap, Shield, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const TIER_COLORS = {
+  bronze: 'text-orange-400 bg-orange-400/10',
+  silver: 'text-gray-300 bg-gray-300/10',
+  gold: 'text-yellow-400 bg-yellow-400/10',
+  platinum: 'text-cyan-400 bg-cyan-400/10',
+  elite: 'text-purple-400 bg-purple-400/10',
+};
 
 export default function UserProfile() {
   const urlParams = new URLSearchParams(window.location.search);
   const email = urlParams.get('email');
+
+  const { data: skillData = [] } = useQuery({
+    queryKey: ['publicSkill', email],
+    queryFn: () => base44.entities.UserSkill.filter({ user_email: email }),
+    enabled: !!email,
+  });
+  const skill = skillData[0] || null;
 
   const { data: forumPosts, isLoading: postsLoading } = useQuery({
     queryKey: ['publicForumPosts', email],
@@ -62,13 +78,33 @@ export default function UserProfile() {
           <Card className="bg-[#111] border border-white/10 mb-8">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500/20 to-green-500/20 flex items-center justify-center">
-                  <User className="w-10 h-10 text-white" />
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-white text-3xl font-bold">
+                  {authorName?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="text-center md:text-left flex-1">
                   <h1 className="text-2xl font-bold text-white mb-2">{authorName}</h1>
-                  <p className="text-gray-400 text-sm">Community Member</p>
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
+                    {skill?.tier && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${TIER_COLORS[skill.tier] || TIER_COLORS.bronze}`}>
+                        {skill.tier}
+                      </span>
+                    )}
+                    {skill?.xp > 0 && (
+                      <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-yellow-400" />{skill.xp} XP
+                      </span>
+                    )}
+                    {skill?.looking_to_collaborate && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">Open to Collaborate</span>
+                    )}
+                  </div>
+                  {skill?.bio && <p className="text-gray-400 text-sm">{skill.bio}</p>}
                 </div>
+                <Link to={createPageUrl(`Community`) + `?view=dm`}>
+                  <Button size="sm" className="bg-green-600/20 border border-green-600/30 text-green-400 hover:bg-green-600/30">
+                    <MessageCircle className="w-4 h-4 mr-2" />Message
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
