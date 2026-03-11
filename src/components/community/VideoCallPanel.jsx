@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Mic, MicOff, Video, VideoOff, Monitor, MonitorOff, PhoneOff,
   Hand, Maximize2, Minimize2, Loader2
@@ -345,24 +345,69 @@ export default function VideoCallPanel({ channel, user, onLeave }) {
 
 function RemoteVideo({ peer, stream }) {
   const videoRef = useRef(null);
+  const [isTalking, setIsTalking] = useState(false);
+  const analyserRef = useRef(null);
+  const animFrameRef = useRef(null);
+
   useEffect(() => {
-    if (videoRef.current && stream) videoRef.current.srcObject = stream;
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      // Audio analysis for talking detection
+      try {
+        const ac = new AudioContext();
+        const src = ac.createMediaStreamSource(stream);
+        const an = ac.createAnalyser();
+        an.fftSize = 256;
+        src.connect(an);
+        analyserRef.current = an;
+        const data = new Uint8Array(an.frequencyBinCount);
+        const check = () => {
+          an.getByteFrequencyData(data);
+          const avg = data.reduce((a, b) => a + b, 0) / data.length;
+          setIsTalking(avg > 12);
+          animFrameRef.current = requestAnimationFrame(check);
+        };
+        check();
+      } catch {}
+    }
+    return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
   }, [stream]);
 
+  const hasVideo = stream?.getVideoTracks().some(t => t.enabled);
+
   return (
-    <div className="relative rounded-xl overflow-hidden bg-[#1a1a1a] border border-white/10">
-      {!stream && (
+    <div className={`relative rounded-xl overflow-hidden bg-[#1a1a1a] border transition-all ${isTalking ? 'border-green-500/60 shadow-[0_0_12px_rgba(34,197,94,0.3)]' : 'border-white/10'}`}>
+      {(!stream || !hasVideo) && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white">
-            {peer.name?.[0] || '?'}
+          <div className="relative">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white">
+              {peer.name?.[0] || '?'}
+            </div>
+            {isTalking && (
+              <>
+                <span className="absolute inset-0 rounded-full border-2 border-green-400 animate-ping opacity-50" style={{ animationDuration: '0.9s' }} />
+                <span className="absolute -inset-2 rounded-full border border-green-500/30 animate-ping opacity-25" style={{ animationDuration: '1.4s' }} />
+              </>
+            )}
           </div>
-          <span className="text-gray-400 text-sm mt-2">{peer.name || peer.email}</span>
-          <span className="text-gray-600 text-xs">Connecting...</span>
+          <span className="text-gray-400 text-sm mt-3">{peer.name || peer.email}</span>
+          {isTalking ? (
+            <div className="flex items-end gap-0.5 mt-2">
+              {[0,1,2,3,4].map(i => (
+                <div key={i} className="w-1 bg-green-400 rounded-full"
+                  style={{ height: `${6 + Math.random() * 10}px`, animation: `soundBar 0.6s ease-in-out ${i * 0.1}s infinite alternate` }} />
+              ))}
+            </div>
+          ) : (
+            !stream && <span className="text-gray-600 text-xs mt-1">Connecting...</span>
+          )}
+          <style>{`@keyframes soundBar { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }`}</style>
         </div>
       )}
-      <video ref={videoRef} autoPlay playsInline className={`w-full h-full object-cover ${!stream ? 'opacity-0' : ''}`} />
-      <div className="absolute bottom-2 left-2">
+      <video ref={videoRef} autoPlay playsInline className={`w-full h-full object-cover ${(!stream || !hasVideo) ? 'opacity-0' : ''}`} />
+      <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
         <span className="bg-black/60 text-white text-xs px-2 py-0.5 rounded">{peer.name || peer.email}</span>
+        {isTalking && <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />}
       </div>
     </div>
   );
