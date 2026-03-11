@@ -37,11 +37,9 @@ export default function AdminDashboard() {
       if (auth) {
         const u = await base44.auth.me();
         setUser(u);
-        if (u.email === OWNER_EMAIL) {
-          // Owner always has full access
+        if (u.email === OWNER_EMAIL || u.role === 'admin') {
           setIsAdmin(true);
         } else {
-          // Only users explicitly added by owner in AdminModerator table
           const mods = await base44.entities.AdminModerator.filter({ user_email: u.email, is_active: true });
           setIsAdmin(mods.length > 0);
         }

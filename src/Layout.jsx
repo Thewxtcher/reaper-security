@@ -130,9 +130,18 @@ export default function Layout({ children, currentPageName }) {
   const activeTheme = themes?.[0];
 
   useEffect(() => {
-    base44.auth.isAuthenticated().then(auth => {
+    base44.auth.isAuthenticated().then(async (auth) => {
       setIsAuthenticated(auth);
-      if (auth) base44.auth.me().then(setUser);
+      if (auth) {
+        const u = await base44.auth.me();
+        setUser(u);
+        if (u.email === 'reaperappofficial@gmail.com' || u.role === 'admin') {
+          setIsAdminUser(true);
+        } else {
+          const mods = await base44.entities.AdminModerator.filter({ user_email: u.email, is_active: true });
+          setIsAdminUser(mods.length > 0);
+        }
+      }
     });
   }, []);
 
