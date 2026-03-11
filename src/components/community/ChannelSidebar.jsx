@@ -98,7 +98,9 @@ export default function ChannelSidebar({ server, channels, activeChannelId, onSe
       {/* Server header */}
       <div className="h-12 px-4 flex items-center justify-between border-b border-white/10 shadow-sm">
         <h2 className="text-white font-semibold truncate">{server?.name || 'Server'}</h2>
-        <Settings className="w-4 h-4 text-gray-500 hover:text-white cursor-pointer transition-colors" />
+        <button onClick={onOpenSettings} title="Server Settings">
+          <Settings className="w-4 h-4 text-gray-500 hover:text-white cursor-pointer transition-colors" />
+        </button>
       </div>
 
       {/* Channels */}
