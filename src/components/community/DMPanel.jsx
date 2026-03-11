@@ -99,6 +99,8 @@ function DMMessage({ msg, user, prevMsg, onReact, onDelete, onEdit }) {
 
 export default function DMPanel({ conversation, user }) {
   const [input, setInput] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef(null);
   const queryClient = useQueryClient();
 

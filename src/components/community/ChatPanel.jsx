@@ -183,6 +183,8 @@ export default function ChatPanel({ channel, server, user }) {
   const [input, setInput] = useState('');
   const [replyTo, setReplyTo] = useState(null);
   const [isCode, setIsCode] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const queryClient = useQueryClient();
