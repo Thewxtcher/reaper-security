@@ -188,19 +188,28 @@ export default function Layout({ children, currentPageName }) {
                 return (
                   <DropdownMenu key={group.label}>
                     <DropdownMenuTrigger asChild>
-                      <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
                         {group.label}
                         <ChevronDown className="w-3 h-3" />
-                      </button>
+                      </motion.button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-[#1a1a1a] border-white/10 min-w-[160px]">
-                      {group.items.map(item => (
+                    <DropdownMenuContent className="bg-[#1a1a1a] border-white/10 min-w-[160px]"
+                      style={{ animation: 'fadeInDown 0.15s ease' }}>
+                      {group.items.map((item, idx) => (
                         <DropdownMenuItem key={item.page} asChild>
-                          <Link to={createPageUrl(item.page)}
-                            className={`flex items-center gap-2 text-sm cursor-pointer ${currentPageName === item.page ? 'text-white' : 'text-gray-300 hover:text-white'}`}>
-                            <item.icon className="w-4 h-4" />
-                            {item.name}
-                          </Link>
+                          <motion.div
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.04 }}>
+                            <Link to={createPageUrl(item.page)}
+                              className={`flex items-center gap-2 text-sm cursor-pointer w-full px-2 py-1.5 ${currentPageName === item.page ? 'text-white' : 'text-gray-300 hover:text-white'}`}>
+                              <item.icon className="w-4 h-4" />
+                              {item.name}
+                            </Link>
+                          </motion.div>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
