@@ -72,7 +72,7 @@ export default function Learning() {
                   <div>
                     <h3 className="text-white font-serif text-xl">Mr. J's Security Learning Drive</h3>
                     <p className="text-gray-400 text-sm">
-                      Access 40GB+ of free cybersecurity learning materials including books, courses, tools, and more.
+                      Access 40GB+ of cybersecurity content — learning paths, labs, cert prep, CIA Vault 7, tools, books & more.
                     </p>
                   </div>
                 </div>
