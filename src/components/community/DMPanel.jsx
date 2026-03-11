@@ -276,22 +276,34 @@ export default function DMPanel({ conversation, user }) {
       )}
 
       <div className="px-4 pb-4 pt-2 flex-shrink-0">
-        <div className="flex items-center gap-2 bg-[#1a1a1a] rounded-xl border border-white/10 px-4 py-2">
+        <div className="relative flex items-center gap-2 bg-[#1a1a1a] rounded-xl border border-white/10 px-4 py-2">
+          <AnimatePresence>
+            {showPicker && (
+              <MediaPicker
+                onSelectEmoji={handleEmojiSelect}
+                onSelectGif={handleGifSelect}
+                onUpload={handleFileUpload}
+                onClose={() => setShowPicker(false)}
+              />
+            )}
+          </AnimatePresence>
+          <button onClick={() => setShowPicker(!showPicker)}
+            className={`p-1 rounded flex-shrink-0 transition-colors ${showPicker ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'}`}
+            title="Emoji / GIF / File">
+            <Smile className="w-4 h-4" />
+          </button>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder={`Message ${otherName}`}
+            placeholder={uploading ? 'Uploading...' : `Message ${otherName}`}
             className="flex-1 bg-transparent text-white text-sm placeholder:text-gray-600 focus:outline-none"
           />
-          <button onClick={handleSend} disabled={!input.trim() || sendMutation.isPending}
+          <button onClick={handleSend} disabled={(!input.trim() && !uploading) || sendMutation.isPending || uploading}
             className="p-1.5 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-30 text-white transition-colors flex-shrink-0">
-            <Send className="w-4 h-4" />
+            {uploading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
-        {sendMutation.isPending && (
-          <div className="text-[10px] text-gray-600 mt-1 text-right">Sending...</div>
-        )}
       </div>
     </div>
   );
