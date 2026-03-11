@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import {
   Home, Shield, BookOpen, Users, MessageSquare, Code, Mail,
-  Store, LogIn, Menu, X, ChevronDown, Bell, Bot, FlaskConical,
-  Zap, BarChart2, Settings, User, Palette, ChevronRight, MessageCircle, Terminal, Rocket, Briefcase
+  Store, LogIn, Menu, Bell, Bot, FlaskConical, Zap, BarChart2,
+  User, Palette, MessageCircle, Terminal, Rocket, Briefcase,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuTrigger, DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from 'framer-motion';
 import SoundSystem, { sfx } from './components/SoundSystem';
 
-const navGroups = [
+const NAV_SECTIONS = [
   {
-    label: 'Main',
+    label: 'MAIN',
     items: [
       { name: 'Home', icon: Home, page: 'Home' },
       { name: 'Services', icon: Shield, page: 'Services' },
@@ -25,14 +27,14 @@ const navGroups = [
     ]
   },
   {
-    label: 'Community',
+    label: 'COMMUNITY',
     items: [
       { name: 'Community', icon: Users, page: 'Community' },
       { name: 'Forum', icon: MessageSquare, page: 'Forum' },
     ]
   },
   {
-    label: 'Learn & Hack',
+    label: 'LEARN & HACK',
     items: [
       { name: 'Learning', icon: BookOpen, page: 'Learning' },
       { name: 'Cyber Labs', icon: FlaskConical, page: 'CyberLabs' },
@@ -41,34 +43,21 @@ const navGroups = [
     ]
   },
   {
-    label: 'Code',
+    label: 'CODE',
     items: [
       { name: 'Code Hub', icon: Code, page: 'CodeHub' },
       { name: 'SSH Terminal', icon: Terminal, page: 'SSHTerminal' },
     ]
   },
   {
-    label: 'Market',
+    label: 'MARKETPLACE',
     items: [
       { name: 'Marketplace', icon: Store, page: 'Marketplace' },
-    ]
-  },
-  {
-    label: 'Upgrades',
-    items: [
       { name: 'Site Upgrades', icon: Rocket, page: 'Upgrades' },
-    ]
-  },
-  {
-    label: 'Professionals',
-    items: [
       { name: 'Apply as Provider', icon: Briefcase, page: 'ServiceProviderApply' },
     ]
   },
 ];
-
-// Flat list for mobile
-const allNavItems = navGroups.flatMap(g => g.items);
 
 function NotificationBell({ user }) {
   const { data: notifs = [] } = useQuery({
@@ -77,38 +66,37 @@ function NotificationBell({ user }) {
     enabled: !!user?.email,
     refetchInterval: 10000,
   });
-
   const unread = notifs.length;
-
-  const markRead = async (id) => {
-    await base44.entities.Notification.update(id, { is_read: true });
-  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="relative p-2 text-gray-400 hover:text-white transition-colors">
-          <Bell className="w-5 h-5" />
+        <button className="relative p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Notifications">
+          <Bell className="w-4 h-4" />
           {unread > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center font-bold">
+            <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full text-white text-[9px] flex items-center justify-center font-bold">
               {unread > 9 ? '9+' : unread}
             </span>
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-[#1a1a1a] border-white/10 w-80" align="end">
-        <div className="px-3 py-2 border-b border-white/10">
+      <DropdownMenuContent className="bg-[#1a1a1a] border-white/10 w-72" side="right" align="end" sideOffset={8}>
+        <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
           <span className="text-white font-medium text-sm">Notifications</span>
-          {unread > 0 && <span className="ml-2 text-xs text-red-400">{unread} unread</span>}
+          {unread > 0 && <span className="text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">{unread} new</span>}
         </div>
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-72 overflow-y-auto">
           {notifs.length === 0 ? (
-            <div className="px-4 py-6 text-gray-500 text-sm text-center">All caught up!</div>
+            <div className="px-4 py-6 text-gray-500 text-sm text-center">
+              <Bell className="w-8 h-8 mx-auto mb-2 opacity-20" />
+              All caught up!
+            </div>
           ) : notifs.slice(0, 10).map(n => (
-            <DropdownMenuItem key={n.id} onClick={() => markRead(n.id)}
+            <DropdownMenuItem key={n.id}
+              onClick={() => base44.entities.Notification.update(n.id, { is_read: true })}
               className="px-3 py-3 cursor-pointer flex flex-col items-start gap-0.5 border-b border-white/5 last:border-0">
               <span className="text-white text-sm font-medium">{n.title}</span>
-              {n.body && <span className="text-gray-400 text-xs">{n.body}</span>}
+              {n.body && <span className="text-gray-400 text-xs leading-snug">{n.body}</span>}
             </DropdownMenuItem>
           ))}
         </div>
@@ -117,14 +105,171 @@ function NotificationBell({ user }) {
   );
 }
 
+function SidebarNav({ currentPageName, collapsed, user, isAuthenticated, isAdminUser, onClose }) {
+  return (
+    <>
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-4 py-[18px] border-b border-white/5 flex-shrink-0">
+        <Link to={createPageUrl('Home')} className="flex items-center gap-3 min-w-0" onClick={onClose}>
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995223a811449e76d0ebadb/741e36bb4_ChatGPTImageFeb18202606_16_37PM.png"
+            alt="Reaper Security"
+            className="w-8 h-8 object-contain flex-shrink-0"
+          />
+          {!collapsed && (
+            <div className="min-w-0">
+              <div className="text-red-500 font-bold tracking-wide text-sm leading-none font-mono">REAPER</div>
+              <div className="text-red-400/70 font-bold tracking-[0.2em] text-[9px] font-mono mt-0.5">SECURITY</div>
+            </div>
+          )}
+        </Link>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0">
+        {NAV_SECTIONS.map(section => (
+          <div key={section.label} className="mb-3 last:mb-0">
+            {!collapsed && (
+              <div className="text-[9px] font-bold text-gray-700 tracking-[0.18em] px-3 py-1 uppercase mb-0.5 flex items-center gap-1.5">
+                <span className="w-3 h-px bg-gray-700 inline-block" />
+                {section.label}
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {section.items.map(item => {
+                const isActive = currentPageName === item.page;
+                return (
+                  <Link
+                    key={item.page}
+                    to={createPageUrl(item.page)}
+                    onClick={onClose}
+                    onMouseEnter={() => sfx.hover()}
+                    title={collapsed ? item.name : undefined}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150
+                      ${isActive
+                        ? 'bg-red-500/10 text-red-400 border-l-2 border-red-500 pl-[10px]'
+                        : 'text-gray-400 hover:text-gray-100 hover:bg-white/5 border-l-2 border-transparent'
+                      } ${collapsed ? 'justify-center pl-3' : ''}`}
+                  >
+                    <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${isActive ? 'text-red-400' : ''}`} />
+                    {!collapsed && <span className="truncate">{item.name}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        {isAdminUser && (
+          <div className="mb-3 pt-2 border-t border-white/5">
+            {!collapsed && (
+              <div className="text-[9px] font-bold text-red-700/50 tracking-[0.18em] px-3 py-1 uppercase mb-0.5 flex items-center gap-1.5">
+                <span className="w-3 h-px bg-red-700/50 inline-block" />
+                ADMIN
+              </div>
+            )}
+            <Link
+              to={createPageUrl('AdminDashboard')}
+              onClick={onClose}
+              title={collapsed ? 'Admin Panel' : undefined}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all
+                ${currentPageName === 'AdminDashboard'
+                  ? 'bg-red-600/15 text-red-400 border-l-2 border-red-500 pl-[10px]'
+                  : 'text-red-500/50 hover:text-red-400 hover:bg-red-500/5 border-l-2 border-transparent'
+                } ${collapsed ? 'justify-center pl-3' : ''}`}
+            >
+              <BarChart2 className="w-4 h-4 flex-shrink-0" />
+              {!collapsed && 'Admin Panel'}
+            </Link>
+          </div>
+        )}
+      </nav>
+
+      {/* Bottom user bar */}
+      <div className="border-t border-white/5 p-3 flex-shrink-0">
+        {isAuthenticated && user ? (
+          <div className={`flex items-center gap-1 ${collapsed ? 'flex-col items-center' : ''}`}>
+            {!collapsed && (
+              <Link
+                to={createPageUrl('Community') + '?view=dm'}
+                title="Direct Messages"
+                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Link>
+            )}
+            <NotificationBell user={user} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-2 rounded-lg p-1.5 hover:bg-white/5 transition-colors ${collapsed ? '' : 'flex-1 min-w-0'}`}
+                  title={collapsed ? (user?.full_name || 'Account') : undefined}
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                    {user?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  {!collapsed && (
+                    <span className="text-gray-300 text-xs truncate flex-1 text-left">
+                      {user?.full_name?.split(' ')[0] || 'Account'}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-[#1a1a1a] border-white/10 w-48" side="right" align="end">
+                <div className="px-3 py-2 border-b border-white/10">
+                  <div className="text-white text-xs font-medium truncate">{user?.full_name || user?.email}</div>
+                  <div className="text-gray-500 text-[10px] truncate">{user?.email}</div>
+                </div>
+                <DropdownMenuItem asChild>
+                  <Link to={createPageUrl('Profile')} className="text-gray-300 hover:text-white flex items-center gap-2 cursor-pointer text-sm">
+                    <User className="w-3.5 h-3.5" /> Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={createPageUrl('Themes')} className="text-gray-300 hover:text-white flex items-center gap-2 cursor-pointer text-sm">
+                    <Palette className="w-3.5 h-3.5" /> Themes
+                  </Link>
+                </DropdownMenuItem>
+                {isAdminUser && (
+                  <DropdownMenuItem asChild>
+                    <Link to={createPageUrl('AdminDashboard')} className="text-red-400 hover:text-red-300 flex items-center gap-2 cursor-pointer text-sm">
+                      <BarChart2 className="w-3.5 h-3.5" /> Admin Panel
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem
+                  onClick={() => base44.auth.logout()}
+                  className="text-red-400 hover:text-red-300 cursor-pointer text-sm"
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : (
+          <Button
+            onClick={() => base44.auth.redirectToLogin(window.location.href)}
+            className={`${collapsed ? 'w-9 h-9 p-0 justify-center' : 'w-full'} bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs`}
+            size="sm"
+          >
+            <LogIn className="w-3.5 h-3.5 flex-shrink-0" />
+            {!collapsed && <span className="ml-1.5">Sign In</span>}
+          </Button>
+        )}
+      </div>
+    </>
+  );
+}
+
 export default function Layout({ children, currentPageName }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const { data: themes } = useQuery({
+  const { data: themes = [] } = useQuery({
     queryKey: ['activeTheme'],
     queryFn: async () => {
       try {
@@ -165,182 +310,106 @@ export default function Layout({ children, currentPageName }) {
   const secondary = activeTheme?.secondary_color || '#22c55e';
   const text = activeTheme?.text_color || '#ffffff';
 
+  const themeStyles = `
+    :root { --primary: ${primary}; --secondary: ${secondary}; --background: ${bg}; --card: ${card}; --text: ${text}; }
+    body { background-color: ${bg} !important; color: ${text} !important; }
+  `;
+
+  const navProps = {
+    currentPageName, collapsed,
+    user, isAuthenticated, isAdminUser,
+    onClose: () => setMobileOpen(false),
+  };
+
+  if (isCommunity) {
+    return (
+      <div className="min-h-screen text-white" style={{ backgroundColor: bg, color: text }}>
+        <SoundSystem />
+        <style>{themeStyles}</style>
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen text-white" style={{ backgroundColor: bg, color: text }}>
+    <div className="h-screen flex overflow-hidden" style={{ backgroundColor: bg, color: text }}>
       <SoundSystem />
-      <style>{`
-        :root {
-          --primary: ${primary};
-          --secondary: ${secondary};
-          --background: ${bg};
-          --card: ${card};
-          --text: ${text};
-        }
-        body { background-color: ${bg} !important; color: ${text} !important; }
-        .bg-\\[\\#0a0a0a\\], .bg-\\[\\#111\\], .bg-\\[\\#0f0f0f\\] { background-color: ${bg} !important; }
-      `}</style>
+      <style>{themeStyles}</style>
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 gap-2">
-            {/* Logo */}
-            <Link to={createPageUrl('Home')} className="flex items-center gap-3 shrink-0">
-              <img
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995223a811449e76d0ebadb/741e36bb4_ChatGPTImageFeb18202606_16_37PM.png"
-                alt="Reaper Security" className="w-8 h-8 object-contain"
-              />
-              <div className="flex flex-col">
-                <span className="text-red-500 font-bold tracking-wide text-sm">REAPER</span>
-                <span className="text-red-500 font-bold tracking-widest text-xs -mt-1">SECURITY</span>
-              </div>
-            </Link>
+      {/* Desktop Sidebar */}
+      <aside
+        className={`hidden lg:flex flex-col flex-shrink-0 transition-all duration-300 relative
+          ${collapsed ? 'w-16' : 'w-64'} bg-[#0d0d0d] border-r border-white/5`}
+      >
+        <SidebarNav {...navProps} />
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-14 w-6 h-6 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center text-gray-500 hover:text-white hover:border-red-500/40 transition-all z-10 shadow-lg"
+        >
+          {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+        </button>
+      </aside>
 
-            {/* Desktop Nav — grouped dropdowns */}
-            <div className="hidden lg:flex items-center gap-1 ml-4 flex-1">
-              {navGroups.map(group => {
-                const isActive = group.items.some(i => i.page === currentPageName);
-                if (group.items.length === 1) {
-                  const item = group.items[0];
-                  return (
-                    <Link key={item.page} to={createPageUrl(item.page)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${currentPageName === item.page ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-                      <item.icon className="w-4 h-4" />
-                      {item.name}
-                    </Link>
-                  );
-                }
-                return (
-                  <DropdownMenu key={group.label}>
-                    <DropdownMenuTrigger asChild>
-                      <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onMouseEnter={() => sfx.hover()}
-                        onClick={() => sfx.menuOpen()}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-                        {group.label}
-                        <ChevronDown className="w-3 h-3" />
-                      </motion.button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-[#1a1a1a] border-white/10 min-w-[160px]"
-                      style={{ animation: 'fadeInDown 0.15s ease' }}>
-                      {group.items.map((item, idx) => (
-                        <DropdownMenuItem key={item.page} asChild>
-                          <motion.div
-                            initial={{ opacity: 0, x: -6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.04 }}>
-                            <Link to={createPageUrl(item.page)}
-                              onMouseEnter={() => sfx.hover()}
-                              className={`flex items-center gap-2 text-sm cursor-pointer w-full px-2 py-1.5 ${currentPageName === item.page ? 'text-white' : 'text-gray-300 hover:text-white'}`}>
-                              <item.icon className="w-4 h-4" />
-                              {item.name}
-                            </Link>
-                          </motion.div>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                );
-              })}
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -256 }} animate={{ x: 0 }} exit={{ x: -256 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed left-0 top-0 h-full w-64 flex flex-col bg-[#0d0d0d] border-r border-white/5 z-50 lg:hidden shadow-2xl"
+            >
+              <SidebarNav {...navProps} collapsed={false} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
-              {/* Admin link */}
-              {isAdminUser && (
-                <Link to={createPageUrl('AdminDashboard')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${currentPageName === 'AdminDashboard' ? 'bg-red-600/20 text-red-400' : 'text-red-500/70 hover:text-red-400 hover:bg-red-500/10'}`}>
-                  <BarChart2 className="w-4 h-4" />
-                  Admin
-                </Link>
-              )}
+      {/* Content area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Mobile top bar */}
+        <div className="lg:hidden flex items-center gap-3 px-4 h-14 bg-[#0d0d0d] border-b border-white/5 flex-shrink-0">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="text-gray-400 hover:text-white transition-colors p-1"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <Link to={createPageUrl('Home')} className="flex items-center gap-2">
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995223a811449e76d0ebadb/741e36bb4_ChatGPTImageFeb18202606_16_37PM.png"
+              className="w-7 h-7 object-contain"
+            />
+            <span className="text-red-500 font-bold text-sm tracking-wide font-mono">REAPER SECURITY</span>
+          </Link>
+          {isAuthenticated && user && (
+            <div className="ml-auto">
+              <NotificationBell user={user} />
             </div>
-
-            {/* Right side */}
-            <div className="flex items-center gap-2 ml-auto">
-              {isAuthenticated && user && (
-                <Link to={createPageUrl('Community') + '?view=dm'} title="Direct Messages"
-                  className={`p-2 text-gray-400 hover:text-white transition-colors ${currentPageName === 'Community' ? 'text-white' : ''}`}>
-                  <MessageCircle className="w-5 h-5" />
-                </Link>
-              )}
-              {isAuthenticated && user && <NotificationBell user={user} />}
-              {isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-gray-300 hover:text-white gap-2 px-3">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-xs font-bold text-white">
-                        {user?.full_name?.[0] || user?.email?.[0] || '?'}
-                      </div>
-                      <span className="hidden sm:block text-sm">{user?.full_name?.split(' ')[0] || 'Account'}</span>
-                      <ChevronDown className="w-3 h-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-[#1a1a1a] border-white/10" align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to={createPageUrl('Profile')} className="text-gray-300 hover:text-white flex items-center gap-2 cursor-pointer">
-                        <User className="w-4 h-4" />Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to={createPageUrl('Themes')} className="text-gray-300 hover:text-white flex items-center gap-2 cursor-pointer">
-                        <Palette className="w-4 h-4" />Themes
-                      </Link>
-                    </DropdownMenuItem>
-                    {isAdminUser && (
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('AdminDashboard')} className="text-red-400 hover:text-red-300 flex items-center gap-2 cursor-pointer">
-                          <BarChart2 className="w-4 h-4" />Admin Panel
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator className="bg-white/10" />
-                    <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-red-400 hover:text-red-300 cursor-pointer">
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button onClick={() => base44.auth.redirectToLogin(window.location.href)}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm px-4">
-                  <LogIn className="w-4 h-4 mr-2" />Login
-                </Button>
-              )}
-
-              {/* Mobile menu */}
-              <Button variant="ghost" className="lg:hidden text-white px-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-            </div>
-          </div>
+          )}
+          {!isAuthenticated && (
+            <Button
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
+              size="sm"
+              className="ml-auto bg-red-600 hover:bg-red-500 text-white text-xs"
+            >
+              <LogIn className="w-3.5 h-3.5 mr-1" />Sign In
+            </Button>
+          )}
         </div>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#0a0a0a] border-t border-white/5 max-h-[80vh] overflow-y-auto">
-            <div className="px-4 py-4 space-y-1">
-              {allNavItems.map(item => (
-                <Link key={item.page} to={createPageUrl(item.page)} onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${currentPageName === item.page ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-                  <item.icon className="w-5 h-5" />
-                  {item.name}
-                </Link>
-              ))}
-              {isAdminUser && (
-                <Link to={createPageUrl('AdminDashboard')} onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10">
-                  <BarChart2 className="w-5 h-5" />Admin Panel
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
-      </nav>
-
-      {/* Main Content */}
-      <main className={isCommunity ? '' : 'pt-16'}>
-        {children}
-      </main>
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
