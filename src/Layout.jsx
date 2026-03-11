@@ -219,7 +219,7 @@ export default function Layout({ children, currentPageName }) {
               })}
 
               {/* Admin link */}
-              {user?.email === 'reaperappofficial@gmail.com' && (
+              {(user?.email === 'reaperappofficial@gmail.com' || user?._isAdmin) && (
                 <Link to={createPageUrl('AdminDashboard')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${currentPageName === 'AdminDashboard' ? 'bg-red-600/20 text-red-400' : 'text-red-500/70 hover:text-red-400 hover:bg-red-500/10'}`}>
                   <BarChart2 className="w-4 h-4" />
