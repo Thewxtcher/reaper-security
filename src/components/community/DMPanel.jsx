@@ -181,7 +181,7 @@ export default function DMPanel({ conversation, user }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dms', conversation.id] }),
   });
 
-  const doSend = (content, attachments = []) => {
+  const doSend = async (content, attachments = []) => {
     sendMutation.mutate({
       conversation_id: conversation.id,
       author_email: user.email,
@@ -194,6 +194,20 @@ export default function DMPanel({ conversation, user }) {
       last_message: content.slice(0, 80),
       last_message_at: new Date().toISOString(),
     });
+    // Send notifications to all other participants
+    const otherEmails = conversation.participant_emails?.filter(e => e !== user.email) || [];
+    const senderName = user.full_name || user.email.split('@')[0];
+    for (const email of otherEmails) {
+      base44.entities.Notification.create({
+        user_email: email,
+        type: 'message',
+        title: `${senderName}`,
+        body: content.slice(0, 100),
+        from_email: user.email,
+        from_name: senderName,
+        is_read: false,
+      });
+    }
   };
 
   const handleSend = () => {
