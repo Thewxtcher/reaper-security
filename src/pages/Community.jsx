@@ -144,6 +144,19 @@ export default function Community() {
   const myMember = members.find(m => m.user_email === user?.email);
   const memberRole = myMember?.role;
 
+  // Presence tracking
+  usePresence(user, activeServer?.id);
+
+  // Handle invite code joins from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const inviteCode = params.get('invite');
+    if (inviteCode && user && servers.length > 0) {
+      const target = servers.find(s => s.invite_code === inviteCode);
+      if (target) handleSelectServer(target);
+    }
+  }, [servers, user]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
