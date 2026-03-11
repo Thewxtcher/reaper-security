@@ -254,6 +254,7 @@ export default function ChatPanel({ channel, server, user }) {
 
   const handleSend = () => {
     if (!input.trim() || !channel) return;
+    stopTyping();
     sendMutation.mutate({
       channel_id: channel.id,
       server_id: server.id,
