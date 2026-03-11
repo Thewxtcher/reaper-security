@@ -9,9 +9,17 @@ import { Badge } from '@/components/ui/badge';
 export default function AdminUsers({ user, isOwner }) {
   const [search, setSearch] = useState('');
 
-  const { data: allUsers = [] } = useQuery({
+  const { data: allUsers = [], isLoading } = useQuery({
     queryKey: ['adminUsers'],
-    queryFn: () => base44.entities.User.list('-created_date', 100),
+    queryFn: async () => {
+      // Try backend function first to get all users (bypasses security rules)
+      try {
+        const res = await base44.functions.invoke('getAdminUsers', {});
+        if (res.data?.users) return res.data.users;
+      } catch {}
+      // Fallback
+      return base44.entities.User.list('-created_date', 200);
+    },
   });
 
   const { data: skills = [] } = useQuery({

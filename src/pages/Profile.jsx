@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
@@ -6,7 +6,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   User, Shield, Code, MessageSquare, Star, Edit2, Save, X,
-  Trophy, Zap, BookOpen, Settings, LogOut, Camera, BarChart2
+  Trophy, Zap, BookOpen, Settings, LogOut, Camera, BarChart2,
+  Github, Twitter, Linkedin, Globe, Upload, Link2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,8 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -82,11 +85,32 @@ export default function Profile() {
     }
   });
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      if (skill?.id) {
+        await base44.entities.UserSkill.update(skill.id, { avatar_url: file_url });
+      } else {
+        await base44.entities.UserSkill.create({ user_email: user.email, user_name: user.full_name || user.email, avatar_url: file_url });
+      }
+      queryClient.invalidateQueries({ queryKey: ['mySkill'] });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const startEdit = () => {
     setEditForm({
       bio: skill?.bio || '',
       skills: (skill?.skills || []).join(', '),
       looking_to_collaborate: skill?.looking_to_collaborate || false,
+      github_url: skill?.github_url || '',
+      twitter_url: skill?.twitter_url || '',
+      linkedin_url: skill?.linkedin_url || '',
+      website_url: skill?.website_url || '',
     });
     setEditing(true);
   };
@@ -123,9 +147,31 @@ export default function Profile() {
             <div className="h-24 bg-gradient-to-r from-red-900/40 via-black to-green-900/40" />
             <CardContent className="px-6 pb-6 -mt-10">
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-[#111] flex-shrink-0">
-                  {initials.toUpperCase()}
+                {/* Avatar with upload */}
+                <div className="relative flex-shrink-0">
+                  <div className="w-20 h-20 rounded-2xl border-4 border-[#111] overflow-hidden">
+                    {skill?.avatar_url ? (
+                      <img src={skill.avatar_url} alt={user?.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-white text-3xl font-bold">
+                        {initials.toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-red-600 hover:bg-red-500 border-2 border-[#111] flex items-center justify-center transition-colors"
+                  >
+                    {uploadingAvatar ? (
+                      <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Camera className="w-3 h-3 text-white" />
+                    )}
+                  </button>
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                 </div>
+
                 <div className="flex-1 min-w-0">
                   <h1 className="text-2xl font-bold text-white">{user?.full_name || 'Anonymous'}</h1>
                   <p className="text-gray-400 text-sm">{user?.email}</p>
@@ -140,7 +186,17 @@ export default function Profile() {
                       <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">Open to Collaborate</span>
                     )}
                   </div>
+                  {/* Social links display */}
+                  {(skill?.github_url || skill?.twitter_url || skill?.linkedin_url || skill?.website_url) && (
+                    <div className="flex items-center gap-3 mt-2">
+                      {skill.github_url && <a href={skill.github_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors"><Github className="w-4 h-4" /></a>}
+                      {skill.twitter_url && <a href={skill.twitter_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-sky-400 transition-colors"><Twitter className="w-4 h-4" /></a>}
+                      {skill.linkedin_url && <a href={skill.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-400 transition-colors"><Linkedin className="w-4 h-4" /></a>}
+                      {skill.website_url && <a href={skill.website_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-green-400 transition-colors"><Globe className="w-4 h-4" /></a>}
+                    </div>
+                  )}
                 </div>
+
                 <div className="flex gap-2 flex-shrink-0">
                   {!editing ? (
                     <Button onClick={startEdit} variant="outline" className="border-white/10 text-gray-300 hover:text-white" size="sm">
@@ -168,7 +224,6 @@ export default function Profile() {
         <div className="grid md:grid-cols-3 gap-6">
           {/* Left column */}
           <div className="space-y-4">
-            {/* Stats */}
             <Card className="bg-[#111] border border-white/10">
               <CardHeader className="pb-3"><CardTitle className="text-white text-sm">Stats</CardTitle></CardHeader>
               <CardContent className="space-y-3">
@@ -189,7 +244,6 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            {/* Skills */}
             <Card className="bg-[#111] border border-white/10">
               <CardHeader className="pb-3"><CardTitle className="text-white text-sm">Skills</CardTitle></CardHeader>
               <CardContent>
@@ -205,7 +259,6 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            {/* Quick links */}
             <Card className="bg-[#111] border border-white/10">
               <CardContent className="p-3 space-y-1">
                 <Link to={createPageUrl('Themes')} className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 text-sm transition-colors">
@@ -223,7 +276,7 @@ export default function Profile() {
 
           {/* Right column */}
           <div className="md:col-span-2 space-y-6">
-            {/* Bio / Edit */}
+            {/* Edit form */}
             {editing ? (
               <Card className="bg-[#111] border border-white/20">
                 <CardHeader className="pb-3 flex flex-row items-center justify-between">
@@ -243,6 +296,34 @@ export default function Profile() {
                       placeholder="web, network, osint, python..."
                       className="mt-1 bg-[#0a0a0a] border-white/10 text-white" />
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-gray-400 text-xs uppercase tracking-wide flex items-center gap-1"><Github className="w-3 h-3" />GitHub</Label>
+                      <Input value={editForm.github_url} onChange={e => setEditForm({...editForm, github_url: e.target.value})}
+                        placeholder="https://github.com/username"
+                        className="mt-1 bg-[#0a0a0a] border-white/10 text-white text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-xs uppercase tracking-wide flex items-center gap-1"><Twitter className="w-3 h-3" />Twitter/X</Label>
+                      <Input value={editForm.twitter_url} onChange={e => setEditForm({...editForm, twitter_url: e.target.value})}
+                        placeholder="https://twitter.com/username"
+                        className="mt-1 bg-[#0a0a0a] border-white/10 text-white text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-xs uppercase tracking-wide flex items-center gap-1"><Linkedin className="w-3 h-3" />LinkedIn</Label>
+                      <Input value={editForm.linkedin_url} onChange={e => setEditForm({...editForm, linkedin_url: e.target.value})}
+                        placeholder="https://linkedin.com/in/username"
+                        className="mt-1 bg-[#0a0a0a] border-white/10 text-white text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-xs uppercase tracking-wide flex items-center gap-1"><Globe className="w-3 h-3" />Website</Label>
+                      <Input value={editForm.website_url} onChange={e => setEditForm({...editForm, website_url: e.target.value})}
+                        placeholder="https://yoursite.com"
+                        className="mt-1 bg-[#0a0a0a] border-white/10 text-white text-sm" />
+                    </div>
+                  </div>
+
                   <label className="flex items-center gap-2 text-gray-400 text-sm cursor-pointer">
                     <input type="checkbox" checked={editForm.looking_to_collaborate}
                       onChange={e => setEditForm({...editForm, looking_to_collaborate: e.target.checked})}
@@ -254,6 +335,10 @@ export default function Profile() {
                       bio: editForm.bio,
                       skills: editForm.skills.split(',').map(s => s.trim()).filter(Boolean),
                       looking_to_collaborate: editForm.looking_to_collaborate,
+                      github_url: editForm.github_url,
+                      twitter_url: editForm.twitter_url,
+                      linkedin_url: editForm.linkedin_url,
+                      website_url: editForm.website_url,
                     })} disabled={saveSkillMutation.isPending} className="bg-green-600 hover:bg-green-500">
                       <Save className="w-4 h-4 mr-2" />{saveSkillMutation.isPending ? 'Saving...' : 'Save'}
                     </Button>
