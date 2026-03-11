@@ -13,6 +13,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from 'framer-motion';
+import SoundSystem from './components/SoundSystem';
 
 const navGroups = [
   {
@@ -145,6 +146,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: bg, color: text }}>
+      <SoundSystem />
       <style>{`
         :root {
           --primary: ${primary};

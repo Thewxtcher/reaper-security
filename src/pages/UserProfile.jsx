@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  User, ArrowLeft, Code, MessageSquare, Zap, Shield, MessageCircle
+  User, ArrowLeft, Code, MessageSquare, Zap, Shield, MessageCircle,
+  Github, Twitter, Linkedin, Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
