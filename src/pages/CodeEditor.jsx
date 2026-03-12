@@ -559,9 +559,9 @@ export default function CodeEditor() {
       case 'zoom-reset': setFontSize(13); break;
       case 'run': handleRun(); break;
       case 'run-terminal': setShowTerminal(true); handleRun(); break;
-      case 'stop': termLog('[Execution stopped]', 'error'); break;
-      case 'clear-terminal': setTerminalHistory([{ type: 'system', text: 'Terminal cleared.' }]); break;
-      case 'copy-terminal': navigator.clipboard.writeText(terminalHistory.map(h => h.text).join('\n')); break;
+      case 'stop': break;
+      case 'clear-terminal': break;
+      case 'copy-terminal': break;
       default: break;
     }
   };
