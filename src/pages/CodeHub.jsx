@@ -195,9 +195,15 @@ export default function CodeHub() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all
-                ${activeTab === tab.id ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                ${tab.id === 'extreme'
+                  ? activeTab === tab.id
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    : 'text-red-500/60 hover:text-red-400 hover:bg-red-500/10 border border-transparent'
+                  : activeTab === tab.id ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'
+                }`}
             >
               <tab.icon className="w-4 h-4" />{tab.label}
+              {tab.id === 'extreme' && <Lock className="w-3 h-3 opacity-60" />}
             </button>
           ))}
         </div>
