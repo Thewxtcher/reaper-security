@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Send, Plus, X } from 'lucide-react';
+import { ArrowLeft, Send, Plus, X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
