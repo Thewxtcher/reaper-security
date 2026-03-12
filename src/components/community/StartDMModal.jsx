@@ -10,8 +10,16 @@ export default function StartDMModal({ user, onClose, onStartDM }) {
   const [loading, setLoading] = useState(false);
 
   const { data: profiles = [] } = useQuery({
-    queryKey: ['allProfilesForDM'],
-    queryFn: () => base44.entities.UserSkill.list('-created_date', 200),
+    queryKey: ['allMembersForDM'],
+    queryFn: async () => {
+      const members = await base44.entities.ServerMember.list('-joined_at', 500);
+      const seen = new Set();
+      return members.filter(m => {
+        if (!m.user_email || seen.has(m.user_email)) return false;
+        seen.add(m.user_email);
+        return true;
+      });
+    },
   });
 
   const filtered = profiles.filter(u =>
