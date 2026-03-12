@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Shield, Users, MessageSquare, Flag, Bell, Package, Wrench, Home, Lock, BarChart2, Server } from 'lucide-react';
+import { Shield, Users, MessageSquare, Flag, Bell, Package, Wrench, Home, Lock, BarChart2, Server, Briefcase } from 'lucide-react';
 
 import AdminOverview from '../components/admin/AdminOverview';
 import AdminUsers from '../components/admin/AdminUsers';
@@ -12,6 +12,7 @@ import AdminToolSuite from '../components/admin/AdminToolSuite';
 import AdminModerators from '../components/admin/AdminModerators';
 import AdminPlugins from '../components/admin/AdminPlugins';
 import AdminServers from '../components/admin/AdminServers';
+import AdminApplications from '../components/admin/AdminApplications';
 
 // NOTE: Owner email is intentionally NOT hardcoded here to avoid exposing it
 // in the JS bundle. Role-based access uses server-side role='admin' check only.
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { id: 'contacts', label: 'Contact Requests', icon: Bell },
   { id: 'challenges', label: 'CTF Challenges', icon: Flag },
   { id: 'plugins', label: 'Site Plugins', icon: Package },
+  { id: 'applications', label: 'Provider Apps', icon: Briefcase },
 ];
 
 export default function AdminDashboard() {
@@ -101,13 +103,14 @@ export default function AdminDashboard() {
         {tab === 'overview' && <AdminOverview user={user} isOwner={isOwner} />}
         {tab === 'tools' && <AdminToolSuite />}
         {tab === 'users' && <AdminUsers user={user} isOwner={isOwner} />}
-        {tab === 'moderators' && <AdminModerators user={user} isOwner={isOwner} ownerEmail={OWNER_EMAIL} />}
+        {tab === 'moderators' && <AdminModerators user={user} isOwner={isOwner} />}
         {tab === 'posts' && <AdminPosts />}
         {tab === 'messages' && <AdminMessages user={user} />}
         {tab === 'contacts' && <AdminContacts />}
         {tab === 'challenges' && <AdminChallenges />}
         {tab === 'servers' && <AdminServers isOwner={isOwner} />}
         {tab === 'plugins' && <AdminPlugins user={user} isOwner={isOwner} />}
+        {tab === 'applications' && <AdminApplications />}
       </div>
     </div>
   );
