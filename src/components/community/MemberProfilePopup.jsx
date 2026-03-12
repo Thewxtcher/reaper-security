@@ -159,6 +159,7 @@ export default function MemberProfilePopup({ member, onClose, onStartDM, current
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
