@@ -311,33 +311,7 @@ export default function CyberLabs() {
 
         {/* Leaderboard sidebar */}
         <div className="lg:w-72 flex-shrink-0">
-          <Card className="bg-[#111] border-white/10 sticky top-20">
-            <CardHeader className="border-b border-white/10 pb-3">
-              <CardTitle className="text-white text-sm flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-yellow-400" /> Leaderboard
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 space-y-2">
-              {leaderboard.map((entry, i) => (
-                <div key={entry.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                  <span className={`text-xs font-bold w-5 text-center ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-amber-600' : 'text-gray-600'}`}>
-                    {i + 1}
-                  </span>
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-white text-xs font-bold">
-                    {entry.user_name?.[0]?.toUpperCase() || '?'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white text-xs font-medium truncate">{entry.user_name || entry.user_email}</div>
-                    <div className="text-gray-500 text-xs capitalize">{entry.tier}</div>
-                  </div>
-                  <span className="text-yellow-400 text-xs font-bold">{entry.xp}</span>
-                </div>
-              ))}
-              {leaderboard.length === 0 && (
-                <p className="text-gray-600 text-xs text-center py-4">No entries yet</p>
-              )}
-            </CardContent>
-          </Card>
+          <GlobalLeaderboard currentUserEmail={user?.email} />
         </div>
       </div>
     </div>
