@@ -133,8 +133,8 @@ function RepoCard({ project, index }) {
               <span className="hidden sm:inline text-[10px]">Save</span>
             </button>
           </div>
+          <Link to={createPageUrl(`CodeProject?id=${project.id}`)} className="absolute inset-0 rounded-xl" />
         </div>
-        <Link to={createPageUrl(`CodeProject?id=${project.id}`)} className="absolute inset-0 rounded-xl" />
     </motion.div>
   );
 }
