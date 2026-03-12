@@ -539,59 +539,6 @@ export default function CodeEditor() {
 
   const handleRun = () => {
     setShowTerminal(true);
-    termLog(`$ Running ${activeFile?.name}...`, 'input');
-    termLog(`[Simulated] Execution started for ${activeFile?.name}`, 'system');
-    if (activeFile?.language === 'python') {
-      const lines = (activeFile?.content || '').split('\n');
-      const prints = lines.filter(l => l.trim().startsWith('print(')).map(l => {
-        const match = l.match(/print\(["'](.+?)["']\)/);
-        return match ? match[1] : l.replace('print(', '').replace(')', '');
-      });
-      if (prints.length > 0) prints.forEach(p => termLog(p, 'output'));
-      else termLog('[Simulated output — connect a backend for real execution]', 'output');
-    } else {
-      termLog('[Simulated output — connect a backend for real execution]', 'output');
-    }
-    termLog(`[Process exited with code 0]`, 'system');
-  };
-
-  const handleTerminalCommand = () => {
-    const cmd = terminalInput.trim();
-    if (!cmd) return;
-    setTerminalInput('');
-    setTerminalHistory(h => [...h, { type: 'input', text: cmd }]);
-
-    const parts = cmd.split(' ');
-    const base = parts[0].toLowerCase();
-
-    if (base === 'help') {
-      termLog('Available commands: help, clear, ls, echo, date, whoami, save, download, run', 'system');
-    } else if (base === 'clear') {
-      setTerminalHistory([{ type: 'system', text: 'Terminal cleared.' }]);
-    } else if (base === 'ls') {
-      files.forEach(f => termLog(`  ${f.name}  (${f.language})`, 'output'));
-    } else if (base === 'echo') {
-      termLog(parts.slice(1).join(' '), 'output');
-    } else if (base === 'date') {
-      termLog(new Date().toString(), 'output');
-    } else if (base === 'whoami') {
-      termLog('reaper-user', 'output');
-    } else if (base === 'save') {
-      handleSave();
-    } else if (base === 'download') {
-      downloadFile();
-    } else if (base === 'run') {
-      handleRun();
-    } else if (base === 'pwd') {
-      termLog('/home/reaper/projects', 'output');
-    } else if (base === 'cat') {
-      const fname = parts[1];
-      const found = files.find(f => f.name === fname);
-      if (found) termLog(found.content, 'output');
-      else termLog(`cat: ${fname}: No such file`, 'error');
-    } else {
-      termLog(`${base}: command not found. Type "help" for commands.`, 'error');
-    }
   };
 
   const handleMenuAction = (action) => {
