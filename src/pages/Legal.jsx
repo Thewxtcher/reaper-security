@@ -195,6 +195,10 @@ ACKNOWLEDGMENT: BY USING REAPER SECURITY, YOU ACKNOWLEDGE THAT YOU HAVE READ THE
 export default function Legal() {
   const [openSections, setOpenSections] = useState({ acceptance: true });
 
+  useEffect(() => {
+    localStorage.setItem('reaper_legal_seen', '1');
+  }, []);
+
   const toggle = (id) => {
     setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
   };
