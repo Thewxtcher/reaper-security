@@ -298,6 +298,18 @@ export default function Layout({ children, currentPageName }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [showBoot, setShowBoot] = useState(() => !sessionStorage.getItem('reaper_booted'));
+  const [bootDone, setBootDone] = useState(false);
+
+  const handleBootComplete = () => {
+    sessionStorage.setItem('reaper_booted', '1');
+    setShowBoot(false);
+    setBootDone(true);
+    // Redirect to Legal if they haven't seen it yet
+    if (!localStorage.getItem('reaper_legal_seen') && currentPageName !== 'Legal') {
+      window.location.href = createPageUrl('Legal');
+    }
+  };
 
   const { data: themes = [] } = useQuery({
     queryKey: ['activeTheme'],
