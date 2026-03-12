@@ -76,15 +76,15 @@ export default function StartDMModal({ user, onClose, onStartDM }) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
-                onClick={() => handleStart(u.user_email, u.user_name)}
+                onClick={() => handleStart(u.user_email, u.user_name || u.user_email?.split('@')[0])}
                 disabled={loading}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all text-left group"
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                  {u.user_name?.[0]?.toUpperCase() || u.user_email?.[0]?.toUpperCase() || '?'}
+                  {(u.user_name || u.user_email)?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-white text-sm font-medium truncate">{u.user_name || u.user_email}</div>
+                  <div className="text-white text-sm font-medium truncate">{u.user_name || u.user_email?.split('@')[0]}</div>
                   <div className="text-gray-500 text-xs truncate">{u.user_email}</div>
                 </div>
                 <span className="text-xs text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">Message →</span>
