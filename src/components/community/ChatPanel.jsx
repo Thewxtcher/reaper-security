@@ -377,19 +377,24 @@ export default function ChatPanel({ channel, server, user }) {
           </div>
         ) : (
           <>
-            {messages.map((msg, i) => (
-              <MessageBubble
-                key={msg.id}
-                msg={msg}
-                user={user}
-                prevMsg={messages[i - 1]}
-                onReply={setReplyTo}
-                onDelete={(id) => deleteMutation.mutate(id)}
-                onEdit={(id, content) => editMutation.mutate({ id, content })}
-                onReact={(id, emoji) => reactMutation.mutate({ id, emoji })}
-                onPin={(id) => pinMutation.mutate(id)}
-              />
-            ))}
+            {messages.map((msg, i) => {
+              const myMember = members?.find(m => m.user_email === user?.email);
+              return (
+                <MessageBubble
+                  key={msg.id}
+                  msg={msg}
+                  user={user}
+                  prevMsg={messages[i - 1]}
+                  onReply={setReplyTo}
+                  onDelete={(id) => deleteMutation.mutate(id)}
+                  onEdit={(id, content) => editMutation.mutate({ id, content })}
+                  onReact={(id, emoji) => reactMutation.mutate({ id, emoji })}
+                  onPin={(id) => pinMutation.mutate(id)}
+                  memberRole={myMember?.role}
+                  server={server}
+                />
+              );
+            })}
           </>
         )}
         <div ref={bottomRef} />
