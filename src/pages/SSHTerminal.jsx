@@ -86,6 +86,21 @@ function TerminalPane({ user }) {
     addLine('system', `Connected! Type commands below.`);
   };
 
+  // Client-side warning patterns — purely UX, backend enforces the real block
+  const WARN_PATTERNS = [
+    { pattern: /\bsudo\s+rm\s+-rf\b/, label: 'recursive deletion' },
+    { pattern: /\bchmod\s+777\s+\//, label: 'world-writable root' },
+    { pattern: /\bpasswd\b/, label: 'password change' },
+    { pattern: /\b(reboot|shutdown|halt|poweroff)\b/, label: 'system restart/shutdown' },
+  ];
+
+  const getCommandWarning = (cmd) => {
+    for (const { pattern, label } of WARN_PATTERNS) {
+      if (pattern.test(cmd)) return label;
+    }
+    return null;
+  };
+
   const runCommand = async (cmd) => {
     const trimmed = cmd.trim();
     if (!trimmed) return;
