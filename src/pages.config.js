@@ -62,6 +62,7 @@ import ForumRules from './pages/ForumRules';
 import ForumThread from './pages/ForumThread';
 import Home from './pages/Home';
 import Learning from './pages/Learning';
+import Legal from './pages/Legal';
 import Marketplace from './pages/Marketplace';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
@@ -73,7 +74,6 @@ import Themes from './pages/Themes';
 import ThreatIntel from './pages/ThreatIntel';
 import Upgrades from './pages/Upgrades';
 import UserProfile from './pages/UserProfile';
-import Legal from './pages/Legal';
 import CodeEditor from './pages/CodeEditor';
 import __Layout from './Layout.jsx';
 
@@ -94,6 +94,7 @@ export const PAGES = {
     "ForumThread": ForumThread,
     "Home": Home,
     "Learning": Learning,
+    "Legal": Legal,
     "Marketplace": Marketplace,
     "Profile": Profile,
     "Research": Research,
@@ -105,7 +106,6 @@ export const PAGES = {
     "ThreatIntel": ThreatIntel,
     "Upgrades": Upgrades,
     "UserProfile": UserProfile,
-    "Legal": Legal,
     "CodeEditor": CodeEditor,
 }
 
