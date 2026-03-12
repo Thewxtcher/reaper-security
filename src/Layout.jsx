@@ -7,7 +7,7 @@ import {
   Home, Shield, BookOpen, Users, MessageSquare, Code, Mail,
   Store, LogIn, Menu, Bell, Bot, FlaskConical, Zap, BarChart2,
   User, Palette, MessageCircle, Terminal, Rocket, Briefcase,
-  ChevronLeft, ChevronRight, Activity, X, Settings
+  ChevronLeft, ChevronRight, Activity, X, Settings, Scale
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
