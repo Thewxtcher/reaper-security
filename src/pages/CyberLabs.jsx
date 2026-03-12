@@ -14,6 +14,11 @@ import HackerTerminal from '../components/cyberlabs/HackerTerminal';
 import CategoryBadges from '../components/cyberlabs/CategoryBadges';
 import XPLevelUpToast from '../components/cyberlabs/XPLevelUpToast';
 import GlobalLeaderboard from '../components/cyberlabs/GlobalLeaderboard';
+import StreakTracker, { getStreakData, getXPMultiplier } from '../components/gamification/StreakTracker';
+import LevelTitle from '../components/gamification/LevelTitle';
+import SkillTree from '../components/gamification/SkillTree';
+import MysteryChallenge from '../components/gamification/MysteryChallenge';
+import EasterEgg from '../components/gamification/EasterEgg';
 
 const TIER_CONFIG = {
   bronze:   { color: 'text-amber-600',   bg: 'bg-amber-600/10',   border: 'border-amber-600/30',   xp: 0 },
@@ -195,23 +200,28 @@ export default function CyberLabs() {
 
   const handleSolve = async (xpEarned) => {
     if (!user) return;
-    const existing = await base44.entities.UserSkill.filter({ user_email: user.email });
-    const current = existing[0];
-    const prevXp = current?.xp || 0;
-    const newXp = prevXp + xpEarned;
+    // Apply XP multiplier from streak + skill tree
+    const streak = getStreakData();
+    const existingSkill = await base44.entities.UserSkill.filter({ user_email: user.email });
+    const currentSkill = existingSkill[0];
+    const multiplier = getXPMultiplier(streak, currentSkill?.xp || 0);
+    const adjustedXP = Math.round(xpEarned * multiplier);
+
+    const prevXp = currentSkill?.xp || 0;
+    const newXp = prevXp + adjustedXP;
     const newTier = Object.entries(TIER_CONFIG).reduce((acc, [tier, cfg]) => newXp >= cfg.xp ? tier : acc, 'bronze');
-    if (current) {
-      await base44.entities.UserSkill.update(current.id, {
-        xp: newXp, tier: newTier, challenges_solved: (current.challenges_solved || 0) + 1,
-        technical_score: (current.technical_score || 0) + xpEarned
+    if (currentSkill) {
+      await base44.entities.UserSkill.update(currentSkill.id, {
+        xp: newXp, tier: newTier, challenges_solved: (currentSkill.challenges_solved || 0) + 1,
+        technical_score: (currentSkill.technical_score || 0) + adjustedXP
       });
     } else {
       await base44.entities.UserSkill.create({
         user_email: user.email, user_name: user.full_name || user.email,
-        xp: xpEarned, tier: newTier, challenges_solved: 1, technical_score: xpEarned
+        xp: adjustedXP, tier: newTier, challenges_solved: 1, technical_score: adjustedXP
       });
     }
-    setXpToast({ show: true, xpGained: xpEarned, prevXp, newXp });
+    setXpToast({ show: true, xpGained: adjustedXP, prevXp, newXp });
     queryClient.invalidateQueries({ queryKey: ['mySkill'] });
     queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     queryClient.invalidateQueries({ queryKey: ['mySubmissions'] });
@@ -222,6 +232,7 @@ export default function CyberLabs() {
 
   return (
     <div className="min-h-screen py-20">
+      <EasterEgg />
       <XPLevelUpToast
         {...xpToast}
         onDone={() => setXpToast(t => ({ ...t, show: false }))}
@@ -237,9 +248,10 @@ export default function CyberLabs() {
             <CategoryBadges mySubmissions={mySubmissions} />
           )}
 
-          {/* User XP bar */}
+          {/* User XP bar + streak */}
           {isAuth && mySkill && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-xl mx-auto mb-8">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-xl mx-auto mb-4">
+              <StreakTracker isAuth={isAuth} userXP={mySkill.xp || 0} />
               <div className="bg-[#111] border border-white/10 rounded-xl p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-green-600 flex items-center justify-center text-white font-bold">
@@ -247,11 +259,11 @@ export default function CyberLabs() {
                   </div>
                   <div>
                     <div className="text-white font-medium">{user?.full_name || user?.email}</div>
-                    <div className="text-xs text-gray-500">{mySkill.challenges_solved || 0} challenges solved</div>
+                    <LevelTitle xp={mySkill.xp || 0} size="xs" showNext />
                   </div>
                   <div className="ml-auto text-right">
-                    <div className="text-xs text-gray-500">Total XP</div>
-                    <div className="text-yellow-400 font-bold">{mySkill.xp || 0}</div>
+                    <div className="text-xs text-gray-500">{mySkill.challenges_solved || 0} solves</div>
+                    <div className="text-yellow-400 font-bold">{mySkill.xp || 0} XP</div>
                   </div>
                 </div>
                 <XPBar xp={mySkill.xp || 0} />
@@ -275,6 +287,15 @@ export default function CyberLabs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
         {/* Main challenges */}
         <div className="flex-1 min-w-0">
+          {/* Mystery Challenge */}
+          {isAuth && (
+            <MysteryChallenge
+              challenges={challenges}
+              user={user}
+              mySubmissions={mySubmissions}
+              onSolve={handleSolve}
+            />
+          )}
           {/* Filters */}
           <div className="flex flex-wrap gap-2 mb-6">
             {cats.map(c => (
@@ -309,9 +330,12 @@ export default function CyberLabs() {
           )}
         </div>
 
-        {/* Leaderboard sidebar */}
-        <div className="lg:w-72 flex-shrink-0">
+        {/* Sidebar */}
+        <div className="lg:w-72 flex-shrink-0 space-y-4">
           <GlobalLeaderboard currentUserEmail={user?.email} />
+          {isAuth && mySkill && (
+            <SkillTree currentXP={mySkill.xp || 0} />
+          )}
         </div>
       </div>
     </div>
