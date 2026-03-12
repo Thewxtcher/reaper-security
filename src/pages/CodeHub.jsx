@@ -124,9 +124,17 @@ function RepoCard({ project, index }) {
             <span className="flex items-center gap-1 text-gray-600 text-xs">
               <Download className="w-3 h-3" />{project.downloads || 0}
             </span>
+            <button
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); downloadProject(project); }}
+              title="Download source"
+              className="flex items-center gap-1 text-gray-600 hover:text-green-400 text-xs transition-colors px-2 py-1 rounded hover:bg-green-500/10 border border-transparent hover:border-green-500/20"
+            >
+              <Download className="w-3 h-3" />
+              <span className="hidden sm:inline text-[10px]">Save</span>
+            </button>
           </div>
         </div>
-      </Link>
+        <Link to={createPageUrl(`CodeProject?id=${project.id}`)} className="absolute inset-0 rounded-xl" />
     </motion.div>
   );
 }
