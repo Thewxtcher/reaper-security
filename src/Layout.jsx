@@ -7,7 +7,7 @@ import {
   Home, Shield, BookOpen, Users, MessageSquare, Code, Mail,
   Store, LogIn, Menu, Bell, Bot, FlaskConical, Zap, BarChart2,
   User, Palette, MessageCircle, Terminal, Rocket, Briefcase,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,6 +30,7 @@ const NAV_SECTIONS = [
     label: 'COMMUNITY',
     items: [
       { name: 'Community', icon: Users, page: 'Community' },
+      { name: 'Community Hub', icon: Activity, page: 'CommunityHub' },
       { name: 'Forum', icon: MessageSquare, page: 'Forum' },
     ]
   },
