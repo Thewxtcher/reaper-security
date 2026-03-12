@@ -238,51 +238,212 @@ function ExplorerPanel({ files, activeId, onSelect, onDelete, onNew, showNewFile
   );
 }
 
-// ─── Terminal Panel ───────────────────────────────────────────────────────────
+// ─── SSH Terminal Panel ───────────────────────────────────────────────────────
 
-function TerminalPanel({ history, input, setInput, onCommand, onClear }) {
-  const bottomRef = useRef(null);
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [history]);
+function SSHConnectModal({ onConnect, onClose }) {
+  const [host, setHost] = useState('');
+  const [port, setPort] = useState('22');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   return (
-    <div className="flex flex-col bg-[#1e1e1e] border-t border-black/40" style={{ height: 200 }}>
+    <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-[#252526] border border-[#454545] rounded-lg p-5 w-72 shadow-2xl">
+        <h3 className="text-white text-sm font-bold mb-3 flex items-center gap-2">
+          <TerminalIcon className="w-4 h-4 text-green-400" /> SSH Connect
+        </h3>
+        <div className="space-y-2">
+          <input value={host} onChange={e => setHost(e.target.value)} placeholder="Host / IP" className="w-full bg-[#3c3c3c] border border-[#555] text-white text-xs px-2 py-1.5 rounded outline-none focus:border-blue-500" />
+          <input value={port} onChange={e => setPort(e.target.value)} placeholder="Port (22)" className="w-full bg-[#3c3c3c] border border-[#555] text-white text-xs px-2 py-1.5 rounded outline-none focus:border-blue-500" />
+          <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" className="w-full bg-[#3c3c3c] border border-[#555] text-white text-xs px-2 py-1.5 rounded outline-none focus:border-blue-500" />
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full bg-[#3c3c3c] border border-[#555] text-white text-xs px-2 py-1.5 rounded outline-none focus:border-blue-500" />
+        </div>
+        <div className="flex gap-2 mt-3">
+          <button onClick={onClose} className="flex-1 px-3 py-1.5 text-xs text-gray-400 border border-[#555] rounded hover:bg-[#3c3c3c] transition-colors">Cancel</button>
+          <button
+            onClick={() => host && username && onConnect({ host, port: port || '22', username, password })}
+            className="flex-1 px-3 py-1.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded transition-colors"
+          >Connect</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TerminalPanel({ onClose, activeFile }) {
+  const [lines, setLines] = useState([
+    { type: 'system', text: 'Reaper Editor Terminal — Live SSH + Code Runner' },
+    { type: 'system', text: 'Type "connect" to start an SSH session, "run" to execute current file, "help" for all commands.' },
+  ]);
+  const [input, setInput] = useState('');
+  const [cmdHistory, setCmdHistory] = useState([]);
+  const [histIdx, setHistIdx] = useState(-1);
+  const [connection, setConnection] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [showConnect, setShowConnect] = useState(false);
+  const bottomRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [lines]);
+
+  const addLine = (type, text) => setLines(p => [...p, { type, text }]);
+
+  const handleConnect = (creds) => {
+    setConnection(creds);
+    setShowConnect(false);
+    addLine('system', `Connecting to ${creds.username}@${creds.host}:${creds.port}...`);
+    addLine('success', `Connected! All commands will run on ${creds.host}.`);
+  };
+
+  const runSSHCommand = async (cmd) => {
+    setIsRunning(true);
+    try {
+      const res = await base44.functions.invoke('sshProxy', {
+        host: connection.host,
+        port: connection.port,
+        username: connection.username,
+        password: connection.password,
+        command: cmd,
+      });
+      const output = res?.data?.output;
+      const error = res?.data?.error;
+      if (error) addLine('error', error);
+      else addLine('output', output || '(no output)');
+    } catch (e) {
+      addLine('error', `Request failed: ${e.message}`);
+    }
+    setIsRunning(false);
+  };
+
+  const handleCommand = async () => {
+    const cmd = input.trim();
+    if (!cmd) return;
+    setInput('');
+    setCmdHistory(h => [cmd, ...h.slice(0, 49)]);
+    setHistIdx(-1);
+
+    const prompt = connection ? `${connection.username}@${connection.host}:~$` : 'local$';
+    addLine('input', `${prompt} ${cmd}`);
+
+    if (cmd === 'help') {
+      addLine('system', [
+        'Commands:',
+        '  connect          — Open SSH connection dialog',
+        '  disconnect       — End SSH session',
+        '  run              — Run current editor file on SSH server',
+        '  clear            — Clear terminal',
+        '  ls / pwd / cat   — File system commands (requires SSH)',
+        '  <any shell cmd>  — Execute on connected server',
+      ].join('\n'));
+      return;
+    }
+    if (cmd === 'clear') { setLines([]); return; }
+    if (cmd === 'connect') { setShowConnect(true); return; }
+    if (cmd === 'disconnect') {
+      setConnection(null);
+      addLine('system', 'Disconnected.');
+      return;
+    }
+
+    if (cmd === 'run') {
+      if (!activeFile) { addLine('error', 'No active file.'); return; }
+      if (!connection) { addLine('error', 'No SSH session. Type "connect" first.'); return; }
+      addLine('system', `Running ${activeFile.name} on ${connection.host}...`);
+      const langRunners = {
+        python: `python3 -c ${JSON.stringify(activeFile.content)}`,
+        javascript: `node -e ${JSON.stringify(activeFile.content)}`,
+        bash: `bash -c ${JSON.stringify(activeFile.content)}`,
+        ruby: `ruby -e ${JSON.stringify(activeFile.content)}`,
+        php: `php -r ${JSON.stringify(activeFile.content)}`,
+      };
+      const runCmd = langRunners[activeFile.language];
+      if (!runCmd) { addLine('error', `No runner for language: ${activeFile.language}. Upload the file manually.`); return; }
+      await runSSHCommand(runCmd);
+      return;
+    }
+
+    if (!connection) {
+      addLine('error', `Not connected. Type "connect" to start an SSH session.`);
+      return;
+    }
+
+    await runSSHCommand(cmd);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') { handleCommand(); }
+    else if (e.key === 'ArrowUp') {
+      const idx = Math.min(histIdx + 1, cmdHistory.length - 1);
+      setHistIdx(idx); setInput(cmdHistory[idx] || '');
+    } else if (e.key === 'ArrowDown') {
+      const idx = Math.max(histIdx - 1, -1);
+      setHistIdx(idx); setInput(idx === -1 ? '' : cmdHistory[idx] || '');
+    }
+  };
+
+  const prompt = connection ? `${connection.username}@${connection.host}:~$` : 'local$';
+
+  return (
+    <div className="flex flex-col bg-[#1e1e1e] border-t border-black/40 relative" style={{ height: 220 }}>
+      {showConnect && <SSHConnectModal onConnect={handleConnect} onClose={() => setShowConnect(false)} />}
+
+      {/* Panel header */}
       <div className="flex items-center justify-between px-3 h-8 bg-[#252526] border-b border-black/30 flex-shrink-0">
-        <div className="flex gap-4">
-          <span className="text-[11px] text-white border-b border-white pb-0.5 cursor-pointer">TERMINAL</span>
-          <span className="text-[11px] text-gray-500 cursor-pointer hover:text-gray-300">OUTPUT</span>
+        <div className="flex gap-3 items-center">
+          <span className="text-[11px] text-white font-medium">TERMINAL</span>
+          {connection ? (
+            <div className="flex items-center gap-1.5 text-[10px] text-green-400 bg-green-500/10 px-2 py-0.5 rounded">
+              <Wifi className="w-3 h-3" />
+              {connection.username}@{connection.host}:{connection.port}
+              <button onClick={() => { setConnection(null); addLine('system', 'Disconnected.'); }} className="ml-1 text-green-600 hover:text-red-400 transition-colors">
+                <X className="w-2.5 h-2.5" />
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setShowConnect(true)} className="flex items-center gap-1 text-[10px] text-gray-500 hover:text-blue-400 transition-colors">
+              <WifiOff className="w-3 h-3" /> Connect SSH
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onClear} title="Clear" className="text-gray-500 hover:text-white transition-colors p-0.5">
+          <button onClick={() => setLines([])} title="Clear" className="text-gray-500 hover:text-white p-0.5 transition-colors">
             <Trash2 className="w-3.5 h-3.5" />
           </button>
-          <button onClick={() => {}} title="Close" className="text-gray-500 hover:text-white transition-colors p-0.5">
+          <button onClick={onClose} title="Close" className="text-gray-500 hover:text-white p-0.5 transition-colors">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 font-mono text-xs leading-5">
-        {history.map((entry, i) => (
-          <div key={i} className={
-            entry.type === 'system' ? 'text-blue-400' :
-            entry.type === 'error' ? 'text-red-400' :
-            entry.type === 'success' ? 'text-green-400' :
-            entry.type === 'input' ? 'text-white' : 'text-gray-300'
-          }>
-            {entry.type === 'input' ? <span><span className="text-green-400">reaper@sec</span><span className="text-gray-500">:</span><span className="text-blue-400">~</span><span className="text-gray-500">$</span> {entry.text}</span> : entry.text}
-          </div>
+
+      {/* Output */}
+      <div
+        className="flex-1 overflow-y-auto p-2 font-mono text-xs leading-5 cursor-text"
+        onClick={() => inputRef.current?.focus()}
+      >
+        {lines.map((line, i) => (
+          <div key={i} className={`whitespace-pre-wrap break-all ${
+            line.type === 'system' ? 'text-blue-400' :
+            line.type === 'success' ? 'text-green-400' :
+            line.type === 'error' ? 'text-red-400' :
+            line.type === 'input' ? 'text-yellow-300' : 'text-gray-300'
+          }`}>{line.text}</div>
         ))}
+        {isRunning && <div className="text-yellow-400 animate-pulse">Running...</div>}
+        {!isRunning && (
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-green-400 flex-shrink-0">{prompt}</span>
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent text-white outline-none caret-green-400 font-mono"
+              autoFocus
+              spellCheck={false}
+              autoComplete="off"
+            />
+          </div>
+        )}
         <div ref={bottomRef} />
-      </div>
-      <div className="flex items-center px-3 pb-2 gap-2">
-        <span className="text-green-400 text-xs font-mono">reaper@sec:~$</span>
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') onCommand(); }}
-          placeholder="Type a command..."
-          className="flex-1 bg-transparent text-white text-xs font-mono outline-none placeholder:text-gray-600"
-          autoComplete="off"
-          spellCheck={false}
-        />
       </div>
     </div>
   );
