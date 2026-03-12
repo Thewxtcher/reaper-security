@@ -49,7 +49,6 @@
  */
 import AIAssistant from './pages/AIAssistant';
 import AdminDashboard from './pages/AdminDashboard';
-import CodeEditor from './pages/CodeEditor';
 import CodeHub from './pages/CodeHub';
 import CodeProject from './pages/CodeProject';
 import Community from './pages/Community';
@@ -81,7 +80,6 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "AIAssistant": AIAssistant,
     "AdminDashboard": AdminDashboard,
-    "CodeEditor": CodeEditor,
     "CodeHub": CodeHub,
     "CodeProject": CodeProject,
     "Community": Community,
