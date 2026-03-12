@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   MessageSquare, TrendingUp, Users, Zap, Code, Trophy,
-  Shield, ArrowLeft, Flame, Activity
+  Shield, ArrowLeft, Flame, Activity, FileText
 } from 'lucide-react';
 import ActivityFeed from '../components/community/ActivityFeed';
 import TrendingTopics from '../components/community/TrendingTopics';
