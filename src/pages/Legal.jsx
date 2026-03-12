@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, AlertTriangle, Scale, Lock, Eye, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
