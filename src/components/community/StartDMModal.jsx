@@ -9,16 +9,16 @@ export default function StartDMModal({ user, onClose, onStartDM }) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { data: users = [] } = useQuery({
-    queryKey: ['allUsersForDM'],
-    queryFn: () => base44.entities.User.list('-created_date', 200),
+  const { data: profiles = [] } = useQuery({
+    queryKey: ['allProfilesForDM'],
+    queryFn: () => base44.entities.UserSkill.list('-created_date', 200),
   });
 
-  const filtered = users.filter(u =>
-    u.email !== user.email &&
+  const filtered = profiles.filter(u =>
+    u.user_email !== user.email &&
     (search === '' ||
-      u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      u.email?.toLowerCase().includes(search.toLowerCase()))
+      u.user_name?.toLowerCase().includes(search.toLowerCase()) ||
+      u.user_email?.toLowerCase().includes(search.toLowerCase()))
   );
 
   const handleStart = async (targetEmail, targetName) => {
