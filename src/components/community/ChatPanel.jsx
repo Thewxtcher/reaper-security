@@ -234,6 +234,12 @@ export default function ChatPanel({ channel, server, user }) {
     refetchInterval: 2000,
   });
 
+  const { data: members = [] } = useQuery({
+    queryKey: ['members', server?.id],
+    queryFn: () => base44.entities.ServerMember.filter({ server_id: server.id }),
+    enabled: !!server?.id,
+  });
+
   // Real-time subscription
   useEffect(() => {
     if (!channel?.id) return;
