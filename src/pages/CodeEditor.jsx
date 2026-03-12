@@ -493,11 +493,6 @@ export default function CodeEditor() {
     saveFiles(files);
     setSavedIndicator(true);
     setTimeout(() => setSavedIndicator(false), 1500);
-    termLog(`Saved ${activeFile?.name}`, 'success');
-  };
-
-  const termLog = (text, type = 'output') => {
-    setTerminalHistory(h => [...h, { type, text }]);
   };
 
   const updateContent = (content) => {
