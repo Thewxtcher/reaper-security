@@ -232,6 +232,11 @@ export default function CyberLabs() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <HackerTerminal challengeCount={challenges.length} />
 
+          {/* Category badges */}
+          {isAuth && mySubmissions.length > 0 && (
+            <CategoryBadges mySubmissions={mySubmissions} />
+          )}
+
           {/* User XP bar */}
           {isAuth && mySkill && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-xl mx-auto mb-8">
