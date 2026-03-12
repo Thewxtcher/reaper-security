@@ -384,6 +384,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="h-screen flex overflow-hidden" style={{ backgroundColor: bg, color: text }}>
+      {showBoot && <BootSequence onComplete={handleBootComplete} />}
       <SoundSystem />
       <style>{themeStyles}</style>
 
