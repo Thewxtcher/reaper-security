@@ -76,6 +76,7 @@ import Upgrades from './pages/Upgrades';
 import UserProfile from './pages/UserProfile';
 import CodeEditor from './pages/CodeEditor';
 import ProviderSetup from './pages/ProviderSetup';
+import Netbreaker from './pages/Netbreaker';
 import __Layout from './Layout.jsx';
 
 
@@ -109,6 +110,7 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "CodeEditor": CodeEditor,
     "ProviderSetup": ProviderSetup,
+    "Netbreaker": Netbreaker,
 }
 
 export const pagesConfig = {

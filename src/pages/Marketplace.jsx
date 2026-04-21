@@ -64,8 +64,8 @@ function ThemeCard({ theme, user, onApply, onUnapply }) {
             </div>
             {user && (
               <Button size="sm" onClick={() => isActive ? onUnapply(theme) : onApply(theme)}
-                className={`text-xs h-7 ${isActive ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
-                {isActive ? <><Check className="w-3 h-3 mr-1" />Active</> : 'Apply'}
+                className={`text-xs h-7 ${isActive ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-purple-600/20 text-purple-300 hover:bg-purple-600/30'}`}>
+                {isActive ? <><Check className="w-3 h-3 mr-1" />Active (click to remove)</> : <><Palette className="w-3 h-3 mr-1" />Apply to Site</>}
               </Button>
             )}
           </div>
@@ -197,12 +197,35 @@ export default function Marketplace() {
   const [showCreateTheme, setShowCreateTheme] = useState(false);
   const queryClient = useQueryClient();
 
+  const applyThemeCSS = (theme) => {
+    document.body.style.backgroundColor = theme.background_color || '#0a0a0a';
+    document.body.style.color = theme.text_color || '#ffffff';
+    const root = document.documentElement;
+    root.style.setProperty('--primary', theme.primary_color || '#ef4444');
+    root.style.setProperty('--secondary', theme.secondary_color || '#22c55e');
+    if (theme.font_family && theme.font_family !== 'Inter') {
+      const linkId = 'theme-font-link';
+      let link = document.getElementById(linkId);
+      if (!link) { link = document.createElement('link'); link.id = linkId; link.rel = 'stylesheet'; document.head.appendChild(link); }
+      link.href = `https://fonts.googleapis.com/css2?family=${theme.font_family.replace(/ /g,'+')}:wght@400;600;700&display=swap`;
+      document.body.style.fontFamily = `'${theme.font_family}', sans-serif`;
+    }
+  };
+
   useEffect(() => {
     base44.auth.isAuthenticated().then(auth => {
       setIsAuthenticated(auth);
       if (auth) base44.auth.me().then(setUser);
     });
   }, []);
+
+  // Apply active theme on load
+  useEffect(() => {
+    if (myThemes.length > 0) {
+      const active = myThemes.find(t => t.is_active);
+      if (active) applyThemeCSS(active);
+    }
+  }, [myThemes]);
 
   const { data: plugins = [] } = useQuery({
     queryKey: ['plugins'],
@@ -237,13 +260,14 @@ export default function Marketplace() {
 
   const applyThemeMutation = useMutation({
     mutationFn: async (theme) => {
-      // Deactivate all my themes first
       for (const t of myThemes) {
-        await base44.entities.Theme.update(t.id, { is_active: false });
+        if (t.is_active) await base44.entities.Theme.update(t.id, { is_active: false });
       }
       await base44.entities.Theme.update(theme.id, { is_active: true });
+      return theme;
     },
-    onSuccess: () => {
+    onSuccess: (theme) => {
+      applyThemeCSS(theme);
       queryClient.invalidateQueries({ queryKey: ['themes'] });
       queryClient.invalidateQueries({ queryKey: ['allThemes'] });
       queryClient.invalidateQueries({ queryKey: ['activeTheme'] });
@@ -253,6 +277,11 @@ export default function Marketplace() {
   const unapplyThemeMutation = useMutation({
     mutationFn: (theme) => base44.entities.Theme.update(theme.id, { is_active: false }),
     onSuccess: () => {
+      // Restore defaults
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+      document.body.style.fontFamily = '';
+      document.documentElement.style.cssText = '';
       queryClient.invalidateQueries({ queryKey: ['themes'] });
       queryClient.invalidateQueries({ queryKey: ['allThemes'] });
       queryClient.invalidateQueries({ queryKey: ['activeTheme'] });

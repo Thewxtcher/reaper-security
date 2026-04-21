@@ -7,7 +7,7 @@ import {
   Home, Shield, BookOpen, Users, MessageSquare, Code, Mail,
   Store, LogIn, Menu, Bell, Bot, FlaskConical, Zap, BarChart2,
   User, Palette, MessageCircle, Terminal, Rocket, Briefcase,
-  ChevronLeft, ChevronRight, Activity, X, Settings, Scale
+  ChevronLeft, ChevronRight, Activity, X, Settings, Scale, Gamepad2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import SoundSystem, { sfx } from './components/SoundSystem';
 import BootSequence from './components/BootSequence';
+import PluginEngine from './components/plugins/PluginEngine';
+import PluginSidebar from './components/plugins/PluginSidebar';
 
 const NAV_SECTIONS = [
   {
@@ -42,6 +44,7 @@ const NAV_SECTIONS = [
       { name: 'Cyber Labs', icon: FlaskConical, page: 'CyberLabs' },
       { name: 'Threat Intel', icon: Zap, page: 'ThreatIntel' },
       { name: 'AI Assistant', icon: Bot, page: 'AIAssistant' },
+      { name: 'Netbreaker', icon: Gamepad2, page: 'Netbreaker' },
     ]
   },
   {
@@ -358,10 +361,13 @@ export default function Layout({ children, currentPageName }) {
   const secondary = activeTheme?.secondary_color || '#22c55e';
   const text = activeTheme?.text_color || '#ffffff';
 
+  const fontFamily = activeTheme?.font_family || 'Inter';
   const themeStyles = `
     :root { --primary: ${primary}; --secondary: ${secondary}; --background: ${bg}; --card: ${card}; --text: ${text}; }
-    body { background-color: ${bg} !important; color: ${text} !important; }
+    body { background-color: ${bg} !important; color: ${text} !important; ${fontFamily !== 'Inter' ? `font-family: '${fontFamily}', sans-serif !important;` : ''} }
   `;
+  // If custom font, inject Google Fonts link
+  const fontUrl = fontFamily !== 'Inter' ? `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g,'+')}:wght@400;600;700&display=swap` : null;
 
   const navProps = {
     currentPageName,
@@ -377,8 +383,10 @@ export default function Layout({ children, currentPageName }) {
       <div className="min-h-screen text-white" style={{ backgroundColor: bg, color: text }}>
         {showBoot && <BootSequence onComplete={handleBootComplete} />}
         <SoundSystem />
+        <PluginEngine userEmail={user?.email} />
+        {fontUrl && <link rel="stylesheet" href={fontUrl} />}
         <style>{themeStyles}</style>
-        {children}
+          {children}
       </div>
     );
   }
@@ -387,6 +395,8 @@ export default function Layout({ children, currentPageName }) {
     <div className="h-screen flex overflow-hidden" style={{ backgroundColor: bg, color: text }}>
       {showBoot && <BootSequence onComplete={handleBootComplete} />}
       <SoundSystem />
+      <PluginEngine userEmail={user?.email} />
+      {fontUrl && <link rel="stylesheet" href={fontUrl} />}
       <style>{themeStyles}</style>
 
       {/* ── Desktop Sidebar ── */}
@@ -499,6 +509,9 @@ export default function Layout({ children, currentPageName }) {
         <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
           {children}
         </main>
+
+        {/* Plugin sidebar toggle (desktop only) */}
+        <PluginSidebar user={user} />
 
         {/* ── Mobile Bottom Nav Bar ── */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-white/5 z-40 safe-area-bottom">
