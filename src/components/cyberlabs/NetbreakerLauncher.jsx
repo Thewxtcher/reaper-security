@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Gamepad2, Zap, Trophy, Target } from 'lucide-react';
 
@@ -6,6 +6,19 @@ const GAME_URL = "https://media.base44.com/files/public/69b1d8c2b8ddf9df46c6610d
 
 export default function NetbreakerLauncher() {
   const [open, setOpen] = useState(false);
+  const [blobUrl, setBlobUrl] = useState(null);
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    // Pre-fetch the HTML and create a blob URL so it renders without sandbox restrictions
+    fetch(GAME_URL)
+      .then(r => r.text())
+      .then(html => {
+        const blob = new Blob([html], { type: 'text/html' });
+        setBlobUrl(URL.createObjectURL(blob));
+      });
+    return () => { if (blobUrl) URL.revokeObjectURL(blobUrl); };
+  }, []);
 
   return (
     <>
@@ -78,14 +91,20 @@ export default function NetbreakerLauncher() {
               </button>
             </div>
 
-            {/* Game iframe */}
-            <iframe
-              src={GAME_URL}
-              className="flex-1 w-full border-none"
-              title="NETBREAKER"
-              allow="fullscreen"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
-            />
+            {/* Game iframe — rendered from blob to allow full script execution */}
+            {blobUrl ? (
+              <iframe
+                ref={iframeRef}
+                src={blobUrl}
+                className="flex-1 w-full border-none"
+                title="NETBREAKER"
+                allow="fullscreen; pointer-lock"
+              />
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-black">
+                <div className="text-green-400 font-mono text-sm animate-pulse">Loading NETBREAKER...</div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
