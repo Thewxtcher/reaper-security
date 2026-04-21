@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import HackerTerminal from '../components/cyberlabs/HackerTerminal';
+import NetbreakerLauncher from '../components/cyberlabs/NetbreakerLauncher';
 import CategoryBadges from '../components/cyberlabs/CategoryBadges';
 import XPLevelUpToast from '../components/cyberlabs/XPLevelUpToast';
 import GlobalLeaderboard from '../components/cyberlabs/GlobalLeaderboard';
@@ -287,6 +288,9 @@ export default function CyberLabs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
         {/* Main challenges */}
         <div className="flex-1 min-w-0">
+          {/* Netbreaker Game */}
+          <NetbreakerLauncher />
+
           {/* Mystery Challenge */}
           {isAuth && (
             <MysteryChallenge
