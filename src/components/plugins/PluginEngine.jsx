@@ -1,6 +1,6 @@
 /**
  * PluginEngine — runs enabled plugins as real JS on the client.
- * Mounts / unmounts plugin scripts when enabled_by list changes.
+ * Uses MutationObserver to track injected nodes for clean removal.
  */
 import { useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
@@ -9,56 +9,64 @@ import { useQuery } from '@tanstack/react-query';
 const runningPlugins = {}; // id -> cleanup fn
 
 function execPlugin(plugin) {
-  if (runningPlugins[plugin.id]) return; // already running
+  if (runningPlugins[plugin.id]) return;
+
   try {
     const cleanupFns = [];
-    // Track DOM nodes added by this plugin so we can remove them on unload
-    const addedNodes = [];
-    const origAppendChild = document.body.appendChild.bind(document.body);
-    const origInsertBefore = document.body.insertBefore.bind(document.body);
+    const injectedNodes = [];
 
-    // Temporarily patch body to intercept injected nodes
-    document.body.appendChild = (node) => { addedNodes.push(node); return origAppendChild(node); };
-    document.body.insertBefore = (node, ref) => { addedNodes.push(node); return origInsertBefore(node, ref); };
-
-    const pluginAPI = {
-      onUnload: (fn) => cleanupFns.push(fn),
-    };
-    window.__pluginAPI = pluginAPI;
-    // eslint-disable-next-line no-new-func
-    const fn = new Function('pluginAPI', plugin.code);
-    fn(pluginAPI);
-
-    // Restore originals
-    document.body.appendChild = origAppendChild;
-    document.body.insertBefore = origInsertBefore;
-
-    // Also track style tags added to head
-    const headNodes = [];
-    document.head.appendChild = (node) => { headNodes.push(node); return node; };
-
-    // Add a close (×) button to each injected node so users can dismiss them
-    addedNodes.forEach(node => {
-      if (node.nodeType !== 1) return; // only elements
-      try {
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = '×';
-        closeBtn.title = 'Close plugin widget';
-        closeBtn.style.cssText = 'position:absolute;top:4px;right:6px;background:transparent;border:none;color:inherit;font-size:14px;line-height:1;cursor:pointer;opacity:0.6;z-index:1;padding:0;';
-        closeBtn.onmouseover = () => { closeBtn.style.opacity = '1'; };
-        closeBtn.onmouseout = () => { closeBtn.style.opacity = '0.6'; };
-        closeBtn.onclick = (e) => { e.stopPropagation(); node.parentNode?.removeChild(node); };
-        // Ensure the parent is positioned so absolute child works
-        if (getComputedStyle(node).position === 'static') node.style.position = 'relative';
-        node.appendChild(closeBtn);
-      } catch {}
+    // Watch for any DOM nodes added while plugin runs
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(m => {
+        m.addedNodes.forEach(node => {
+          if (node.nodeType === 1) {
+            injectedNodes.push(node);
+            // Add a dismiss × button to floating widgets
+            try {
+              const closeBtn = document.createElement('button');
+              closeBtn.textContent = '×';
+              closeBtn.title = `Disable plugin: ${plugin.name}`;
+              closeBtn.style.cssText = [
+                'position:absolute', 'top:4px', 'right:6px',
+                'background:rgba(0,0,0,0.5)', 'border:none', 'color:#fff',
+                'font-size:16px', 'line-height:1', 'cursor:pointer',
+                'opacity:0.7', 'z-index:2147483647', 'padding:2px 5px',
+                'border-radius:4px',
+              ].join(';');
+              closeBtn.onmouseover = () => { closeBtn.style.opacity = '1'; };
+              closeBtn.onmouseout = () => { closeBtn.style.opacity = '0.7'; };
+              closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                node.parentNode?.removeChild(node);
+              };
+              const pos = getComputedStyle(node).position;
+              if (pos === 'static') node.style.position = 'relative';
+              node.appendChild(closeBtn);
+            } catch {}
+          }
+        });
+      });
     });
 
+    observer.observe(document.body, { childList: true, subtree: false });
+    observer.observe(document.head, { childList: true, subtree: false });
+
+    const pluginAPI = { onUnload: (fn) => cleanupFns.push(fn) };
+    window.__pluginAPI = pluginAPI;
+
+    // Run plugin code directly — full DOM access, no patching
+    // eslint-disable-next-line no-new-func
+    new Function('pluginAPI', plugin.code)(pluginAPI);
+
+    // Give async plugins a tick to inject nodes before stopping observer
+    setTimeout(() => observer.disconnect(), 500);
+
     runningPlugins[plugin.id] = () => {
+      observer.disconnect();
       try { cleanupFns.forEach(f => f()); } catch {}
-      // Remove all DOM nodes injected by this plugin
-      addedNodes.forEach(node => { try { node.parentNode?.removeChild(node); } catch {} });
-      headNodes.forEach(node => { try { node.parentNode?.removeChild(node); } catch {} });
+      injectedNodes.forEach(node => {
+        try { node.parentNode?.removeChild(node); } catch {}
+      });
     };
   } catch (e) {
     console.warn(`[Plugin: ${plugin.name}] Error:`, e.message);
@@ -89,14 +97,14 @@ export default function PluginEngine({ userEmail }) {
       plugins.filter(p => p.enabled_by?.includes(userEmail)).map(p => p.id)
     );
 
-    // Start newly enabled
+    // Start newly enabled plugins
     plugins.forEach(p => {
       if (nowEnabled.has(p.id) && !prevEnabled.current.has(p.id)) {
         execPlugin(p);
       }
     });
 
-    // Stop newly disabled
+    // Stop newly disabled plugins
     prevEnabled.current.forEach(id => {
       if (!nowEnabled.has(id)) cleanupPlugin(id);
     });
@@ -111,5 +119,5 @@ export default function PluginEngine({ userEmail }) {
     };
   }, []);
 
-  return null; // invisible engine
+  return null;
 }
