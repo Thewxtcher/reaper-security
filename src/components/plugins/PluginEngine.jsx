@@ -37,6 +37,23 @@ function execPlugin(plugin) {
     const headNodes = [];
     document.head.appendChild = (node) => { headNodes.push(node); return node; };
 
+    // Add a close (×) button to each injected node so users can dismiss them
+    addedNodes.forEach(node => {
+      if (node.nodeType !== 1) return; // only elements
+      try {
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '×';
+        closeBtn.title = 'Close plugin widget';
+        closeBtn.style.cssText = 'position:absolute;top:4px;right:6px;background:transparent;border:none;color:inherit;font-size:14px;line-height:1;cursor:pointer;opacity:0.6;z-index:1;padding:0;';
+        closeBtn.onmouseover = () => { closeBtn.style.opacity = '1'; };
+        closeBtn.onmouseout = () => { closeBtn.style.opacity = '0.6'; };
+        closeBtn.onclick = (e) => { e.stopPropagation(); node.parentNode?.removeChild(node); };
+        // Ensure the parent is positioned so absolute child works
+        if (getComputedStyle(node).position === 'static') node.style.position = 'relative';
+        node.appendChild(closeBtn);
+      } catch {}
+    });
+
     runningPlugins[plugin.id] = () => {
       try { cleanupFns.forEach(f => f()); } catch {}
       // Remove all DOM nodes injected by this plugin
