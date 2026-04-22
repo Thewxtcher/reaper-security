@@ -21,27 +21,61 @@ function execPlugin(plugin) {
         m.addedNodes.forEach(node => {
           if (node.nodeType === 1) {
             injectedNodes.push(node);
-            // Add a dismiss × button to floating widgets
+            // Make widget draggable and add dismiss × button
             try {
+              const pos = getComputedStyle(node).position;
+              if (pos === 'static' || pos === '') node.style.position = 'fixed';
+
+              // Drag handle bar at top
+              const dragBar = document.createElement('div');
+              dragBar.style.cssText = [
+                'position:absolute', 'top:0', 'left:0', 'right:0', 'height:22px',
+                'background:rgba(0,0,0,0.35)', 'cursor:grab', 'border-radius:inherit',
+                'display:flex', 'align-items:center', 'padding:0 6px',
+                'user-select:none', 'z-index:1',
+              ].join(';');
+              dragBar.title = 'Drag to move';
+
+              // Plugin label
+              const label = document.createElement('span');
+              label.textContent = `⠿ ${plugin.name}`;
+              label.style.cssText = 'color:rgba(255,255,255,0.5);font-size:10px;flex:1;pointer-events:none;font-family:monospace;';
+              dragBar.appendChild(label);
+
+              // Close button
               const closeBtn = document.createElement('button');
               closeBtn.textContent = '×';
-              closeBtn.title = `Disable plugin: ${plugin.name}`;
-              closeBtn.style.cssText = [
-                'position:absolute', 'top:4px', 'right:6px',
-                'background:rgba(0,0,0,0.5)', 'border:none', 'color:#fff',
-                'font-size:16px', 'line-height:1', 'cursor:pointer',
-                'opacity:0.7', 'z-index:2147483647', 'padding:2px 5px',
-                'border-radius:4px',
-              ].join(';');
+              closeBtn.style.cssText = 'background:transparent;border:none;color:#fff;font-size:16px;line-height:1;cursor:pointer;opacity:0.7;padding:0 2px;';
               closeBtn.onmouseover = () => { closeBtn.style.opacity = '1'; };
               closeBtn.onmouseout = () => { closeBtn.style.opacity = '0.7'; };
-              closeBtn.onclick = (e) => {
-                e.stopPropagation();
-                node.parentNode?.removeChild(node);
-              };
-              const pos = getComputedStyle(node).position;
-              if (pos === 'static') node.style.position = 'relative';
-              node.appendChild(closeBtn);
+              closeBtn.onclick = (e) => { e.stopPropagation(); node.parentNode?.removeChild(node); };
+              dragBar.appendChild(closeBtn);
+
+              node.style.paddingTop = '22px';
+              node.appendChild(dragBar);
+
+              // Drag logic
+              let ox = 0, oy = 0, dragging = false;
+              dragBar.addEventListener('mousedown', (e) => {
+                if (e.target === closeBtn) return;
+                dragging = true;
+                dragBar.style.cursor = 'grabbing';
+                const rect = node.getBoundingClientRect();
+                ox = e.clientX - rect.left;
+                oy = e.clientY - rect.top;
+                e.preventDefault();
+              });
+              document.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                node.style.left = (e.clientX - ox) + 'px';
+                node.style.top = (e.clientY - oy) + 'px';
+                node.style.right = 'auto';
+                node.style.bottom = 'auto';
+              });
+              document.addEventListener('mouseup', () => {
+                dragging = false;
+                dragBar.style.cursor = 'grab';
+              });
             } catch {}
           }
         });
