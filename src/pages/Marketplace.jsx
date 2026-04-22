@@ -219,14 +219,6 @@ export default function Marketplace() {
     });
   }, []);
 
-  // Apply active theme on load
-  useEffect(() => {
-    if (myThemes.length > 0) {
-      const active = myThemes.find(t => t.is_active);
-      if (active) applyThemeCSS(active);
-    }
-  }, [myThemes]);
-
   const { data: plugins = [] } = useQuery({
     queryKey: ['plugins'],
     queryFn: () => base44.entities.SitePlugin.filter({ is_public: true }, '-created_date', 100),
@@ -242,6 +234,14 @@ export default function Marketplace() {
     queryFn: () => base44.entities.Theme.filter({ owner_email: user.email }),
     enabled: !!user?.email,
   });
+
+  // Apply active theme on load
+  useEffect(() => {
+    if (myThemes.length > 0) {
+      const active = myThemes.find(t => t.is_active);
+      if (active) applyThemeCSS(active);
+    }
+  }, [myThemes]);
 
   const enablePlugin = useMutation({
     mutationFn: (plugin) => base44.entities.SitePlugin.update(plugin.id, {
