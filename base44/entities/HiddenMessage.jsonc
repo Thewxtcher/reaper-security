@@ -1,0 +1,22 @@
+{
+  "name": "HiddenMessage",
+  "type": "object",
+  "properties": {
+    "author_name": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "reactions": {
+      "type": "object",
+      "description": "Emoji reaction counts, e.g. { '\u2764\ufe0f': 3, '\ud83d\udd25': 1 }"
+    }
+  },
+  "required": [
+    "content"
+  ]
+}
