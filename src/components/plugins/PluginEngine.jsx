@@ -11,18 +11,37 @@ const runningPlugins = {}; // id -> cleanup fn
 function execPlugin(plugin) {
   if (runningPlugins[plugin.id]) return; // already running
   try {
-    // Wrap in IIFE with a cleanup hook
     const cleanupFns = [];
+    // Track DOM nodes added by this plugin so we can remove them on unload
+    const addedNodes = [];
+    const origAppendChild = document.body.appendChild.bind(document.body);
+    const origInsertBefore = document.body.insertBefore.bind(document.body);
+
+    // Temporarily patch body to intercept injected nodes
+    document.body.appendChild = (node) => { addedNodes.push(node); return origAppendChild(node); };
+    document.body.insertBefore = (node, ref) => { addedNodes.push(node); return origInsertBefore(node, ref); };
+
     const pluginAPI = {
-      // Allow plugins to register cleanup logic
       onUnload: (fn) => cleanupFns.push(fn),
     };
     window.__pluginAPI = pluginAPI;
     // eslint-disable-next-line no-new-func
     const fn = new Function('pluginAPI', plugin.code);
     fn(pluginAPI);
+
+    // Restore originals
+    document.body.appendChild = origAppendChild;
+    document.body.insertBefore = origInsertBefore;
+
+    // Also track style tags added to head
+    const headNodes = [];
+    document.head.appendChild = (node) => { headNodes.push(node); return node; };
+
     runningPlugins[plugin.id] = () => {
       try { cleanupFns.forEach(f => f()); } catch {}
+      // Remove all DOM nodes injected by this plugin
+      addedNodes.forEach(node => { try { node.parentNode?.removeChild(node); } catch {} });
+      headNodes.forEach(node => { try { node.parentNode?.removeChild(node); } catch {} });
     };
   } catch (e) {
     console.warn(`[Plugin: ${plugin.name}] Error:`, e.message);
