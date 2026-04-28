@@ -1,0 +1,121 @@
+{
+  "name": "SitePlugin",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "plugin_type": {
+      "type": "string",
+      "enum": [
+        "js",
+        "html",
+        "multi"
+      ],
+      "default": "js",
+      "description": "js = single JS script, html = full HTML app in iframe, multi = multi-file project"
+    },
+    "files": {
+      "type": "array",
+      "description": "Multi-file project files",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "js",
+              "css",
+              "html",
+              "json",
+              "txt",
+              "other"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "For binary/uploaded files"
+          }
+        }
+      }
+    },
+    "entry_file": {
+      "type": "string",
+      "description": "For multi-file plugins, the entry point filename (e.g. index.js or index.html)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "ui",
+        "security",
+        "analytics",
+        "social",
+        "productivity",
+        "fun",
+        "other"
+      ],
+      "default": "other"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true
+    },
+    "downloads": {
+      "type": "number",
+      "default": 0
+    },
+    "votes": {
+      "type": "number",
+      "default": 0
+    },
+    "icon": {
+      "type": "string",
+      "default": "\ud83d\udd0c"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabled_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "description"
+  ]
+}

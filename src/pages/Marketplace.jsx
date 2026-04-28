@@ -6,6 +6,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Store, Palette, ArrowRight, Package, Plus, Star, Download, Check, Search, Wand2 } from 'lucide-react';
 import CreateThemeDialog from '../components/marketplace/CreateThemeDialog';
+import PluginFileEditor from '../components/plugins/PluginFileEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,7 +25,7 @@ const CAT_COLORS = {
   other: 'bg-gray-500/20 text-gray-400',
 };
 
-const STARTER_CODE = `// Plugin: My Awesome Plugin
+const STARTER_CODE_JS = `// Plugin: My Awesome Plugin
 (function() {
   const widget = document.createElement('div');
   widget.style.cssText = 'position:fixed;bottom:80px;right:20px;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;color:white;font-family:monospace;font-size:12px;z-index:9999;cursor:pointer;';
@@ -32,6 +33,31 @@ const STARTER_CODE = `// Plugin: My Awesome Plugin
   widget.onclick = () => alert('Hello from plugin!');
   document.body.appendChild(widget);
 })();`;
+
+const STARTER_CODE_HTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { margin: 0; background: #0d0d0d; color: #fff; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .box { background: #111; border: 1px solid rgba(124,45,214,0.4); border-radius: 12px; padding: 24px; text-align: center; }
+    button { background: #7c2dd6; color: white; border: none; border-radius: 8px; padding: 8px 20px; cursor: pointer; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>🔌 My HTML Plugin</h2>
+    <p>Full HTML app running in an iframe.</p>
+    <button onclick="alert('Hello!')">Click Me</button>
+  </div>
+</body>
+</html>`;
+
+const PLUGIN_TYPES = [
+  { id: 'js', label: '⚡ JS Script', desc: 'Single JavaScript file injected into the page' },
+  { id: 'html', label: '🌐 HTML App', desc: 'Full HTML page rendered in an iframe widget' },
+  { id: 'multi', label: '📁 Multi-File Project', desc: 'Multiple JS/CSS/HTML files as a project' },
+];
 
 const TIER_COLORS = {
   bronze: 'text-orange-400 bg-orange-400/10',
@@ -82,14 +108,16 @@ function PluginCard({ plugin, user, onEnable, onDisable }) {
       <Card className="bg-[#111] border border-white/5 hover:border-white/15 transition-all">
         <CardContent className="p-5">
           <div className="flex items-start gap-3 mb-3">
-            <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl flex-shrink-0">{plugin.icon || '🔌'}</div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-white font-semibold text-sm">{plugin.name}</h3>
-                <span className="text-gray-600 text-xs">v{plugin.version}</span>
-              </div>
-              <div className={`inline-block text-xs px-2 py-0.5 rounded mt-1 ${CAT_COLORS[plugin.category] || CAT_COLORS.other}`}>{plugin.category}</div>
+          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl flex-shrink-0">{plugin.icon || '🔌'}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-white font-semibold text-sm">{plugin.name}</h3>
+              <span className="text-gray-600 text-xs">v{plugin.version}</span>
+              {plugin.plugin_type === 'html' && <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-400">HTML</span>}
+              {plugin.plugin_type === 'multi' && <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400">📁 Multi-file</span>}
             </div>
+            <div className={`inline-block text-xs px-2 py-0.5 rounded mt-1 ${CAT_COLORS[plugin.category] || CAT_COLORS.other}`}>{plugin.category}</div>
+          </div>
           </div>
           <p className="text-gray-400 text-sm mb-3 line-clamp-2">{plugin.description}</p>
           <div className="flex items-center justify-between">
@@ -111,7 +139,11 @@ function PluginCard({ plugin, user, onEnable, onDisable }) {
 }
 
 function CreatePluginDialog({ open, onClose, user, queryClient }) {
-  const [form, setForm] = useState({ name: '', description: '', category: 'other', icon: '🔌', version: '1.0.0', code: STARTER_CODE, tags: '', is_public: true });
+  const [form, setForm] = useState({
+    name: '', description: '', category: 'other', icon: '🔌',
+    version: '1.0.0', code: STARTER_CODE_JS, tags: '', is_public: true,
+    plugin_type: 'js', files: [], entry_file: '',
+  });
 
   const createPlugin = useMutation({
     mutationFn: (data) => base44.entities.SitePlugin.create({
@@ -127,11 +159,37 @@ function CreatePluginDialog({ open, onClose, user, queryClient }) {
     }
   });
 
+  function handleTypeChange(t) {
+    setForm(f => ({
+      ...f,
+      plugin_type: t,
+      code: t === 'html' ? STARTER_CODE_HTML : t === 'js' ? STARTER_CODE_JS : f.code,
+      files: t === 'multi' ? (f.files.length ? f.files : [{ name: 'index.js', path: 'index.js', type: 'js', content: STARTER_CODE_JS }]) : f.files,
+      entry_file: t === 'multi' ? (f.entry_file || 'index.js') : f.entry_file,
+    }));
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#111] border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Create Plugin</DialogTitle></DialogHeader>
+      <DialogContent className="bg-[#111] border-white/10 text-white max-w-3xl max-h-[92vh] overflow-y-auto">
+        <DialogHeader><DialogTitle className="text-white">Create Plugin</DialogTitle></DialogHeader>
         <div className="space-y-4 mt-2">
+
+          {/* Plugin type selector */}
+          <div>
+            <Label className="text-gray-400 text-xs mb-2 block">Plugin Type</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {PLUGIN_TYPES.map(t => (
+                <button key={t.id} onClick={() => handleTypeChange(t.id)}
+                  className={`p-3 rounded-lg border text-left transition-all ${form.plugin_type === t.id ? 'bg-purple-600/20 border-purple-500/50 text-white' : 'bg-white/3 border-white/10 text-gray-400 hover:border-white/20'}`}>
+                  <div className="font-semibold text-xs mb-0.5">{t.label}</div>
+                  <div className="text-[10px] opacity-70 leading-snug">{t.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Meta */}
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label className="text-gray-400 text-xs">Icon</Label>
@@ -166,11 +224,26 @@ function CreatePluginDialog({ open, onClose, user, queryClient }) {
               <Input value={form.tags} onChange={e => setForm({...form, tags: e.target.value})} placeholder="ui, dark" className="bg-[#0a0a0a] border-white/10 text-white mt-1" />
             </div>
           </div>
-          <div>
-            <Label className="text-gray-400 text-xs">JavaScript Code</Label>
-            <textarea value={form.code} onChange={e => setForm({...form, code: e.target.value})} rows={10}
-              className="w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-green-400 text-xs font-mono focus:outline-none focus:border-white/30 resize-none" />
-          </div>
+
+          {/* Code / Files */}
+          {form.plugin_type === 'multi' ? (
+            <div>
+              <Label className="text-gray-400 text-xs mb-2 block">Project Files</Label>
+              <PluginFileEditor
+                files={form.files}
+                onChange={files => setForm(f => ({...f, files}))}
+                entryFile={form.entry_file}
+                onEntryChange={entry_file => setForm(f => ({...f, entry_file}))}
+              />
+            </div>
+          ) : (
+            <div>
+              <Label className="text-gray-400 text-xs">{form.plugin_type === 'html' ? 'HTML Code' : 'JavaScript Code'}</Label>
+              <textarea value={form.code} onChange={e => setForm({...form, code: e.target.value})} rows={12}
+                className={`w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-md px-3 py-2 text-xs font-mono focus:outline-none focus:border-white/30 resize-y ${form.plugin_type === 'html' ? 'text-orange-300' : 'text-green-400'}`} />
+            </div>
+          )}
+
           <label className="flex items-center gap-2 text-gray-400 text-sm cursor-pointer">
             <input type="checkbox" checked={form.is_public} onChange={e => setForm({...form, is_public: e.target.checked})} className="w-4 h-4 accent-red-500" />
             Make this plugin public
