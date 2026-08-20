@@ -1,0 +1,40 @@
+{
+  "name": "AdminModerator",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "granted_by": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "site_monitor",
+        "moderator",
+        "admin"
+      ],
+      "default": "moderator"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

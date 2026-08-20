@@ -1,0 +1,68 @@
+{
+  "name": "Theme",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "primary_color": {
+      "type": "string",
+      "default": "#ef4444"
+    },
+    "secondary_color": {
+      "type": "string",
+      "default": "#22c55e"
+    },
+    "background_color": {
+      "type": "string",
+      "default": "#0a0a0a"
+    },
+    "card_color": {
+      "type": "string",
+      "default": "#111111"
+    },
+    "text_color": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "accent_color": {
+      "type": "string",
+      "default": "#8b5cf6"
+    },
+    "border_color": {
+      "type": "string",
+      "default": "#ffffff1a"
+    },
+    "font_family": {
+      "type": "string",
+      "default": "Inter"
+    },
+    "border_radius": {
+      "type": "string",
+      "default": "0.5rem"
+    },
+    "glow_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
+    },
+    "owner_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

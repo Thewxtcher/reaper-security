@@ -1,0 +1,39 @@
+{
+  "name": "Server",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "banner": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string"
+    },
+    "invite_code": {
+      "type": "string"
+    },
+    "member_count": {
+      "type": "number",
+      "default": 1
+    },
+    "position": {
+      "type": "number",
+      "default": 0
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

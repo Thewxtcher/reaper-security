@@ -1,0 +1,98 @@
+{
+  "name": "ServiceProviderApplication",
+  "type": "object",
+  "properties": {
+    "applicant_email": {
+      "type": "string"
+    },
+    "applicant_name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "specializations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "years_experience": {
+      "type": "number"
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "certification_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resume_url": {
+      "type": "string"
+    },
+    "resume_name": {
+      "type": "string"
+    },
+    "portfolio_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewing",
+        "interview_scheduled",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "preferred_interview_dates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "interview_date": {
+      "type": "string"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "page_headline": {
+      "type": "string"
+    },
+    "hourly_rate": {
+      "type": "string"
+    },
+    "availability": {
+      "type": "string",
+      "enum": [
+        "available",
+        "limited",
+        "consulting",
+        "unavailable"
+      ],
+      "default": "available"
+    },
+    "page_published": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "applicant_email",
+    "applicant_name"
+  ]
+}

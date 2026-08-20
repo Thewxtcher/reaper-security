@@ -1,0 +1,33 @@
+{
+  "name": "CodeFolder",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string"
+    },
+    "project_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "color": {
+      "type": "string",
+      "default": "#22c55e"
+    },
+    "icon": {
+      "type": "string",
+      "default": "\ud83d\udcc1"
+    }
+  },
+  "required": [
+    "name",
+    "owner_email"
+  ]
+}

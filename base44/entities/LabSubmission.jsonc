@@ -1,0 +1,30 @@
+{
+  "name": "LabSubmission",
+  "type": "object",
+  "properties": {
+    "challenge_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "flag_submitted": {
+      "type": "string"
+    },
+    "is_correct": {
+      "type": "boolean",
+      "default": false
+    },
+    "xp_earned": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "challenge_id",
+    "user_email"
+  ]
+}

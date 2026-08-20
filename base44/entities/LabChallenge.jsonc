@@ -1,0 +1,71 @@
+{
+  "name": "LabChallenge",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "web",
+        "network",
+        "osint",
+        "forensics",
+        "crypto",
+        "reverse",
+        "pwn",
+        "misc"
+      ],
+      "default": "web"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "elite"
+      ],
+      "default": "bronze"
+    },
+    "flag": {
+      "type": "string"
+    },
+    "hints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "xp_reward": {
+      "type": "number",
+      "default": 100
+    },
+    "solve_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "lab_url": {
+      "type": "string"
+    },
+    "instructions": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "description"
+  ]
+}

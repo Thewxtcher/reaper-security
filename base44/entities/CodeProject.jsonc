@@ -1,0 +1,76 @@
+{
+  "name": "CodeProject",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string",
+      "default": "python"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "tools",
+        "scripts",
+        "exploits",
+        "frameworks",
+        "utilities",
+        "educational"
+      ],
+      "default": "tools"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "votes": {
+      "type": "number",
+      "default": 0
+    },
+    "downloads": {
+      "type": "number",
+      "default": 0
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "ResearchPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "excerpt": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "web_security",
+        "network",
+        "osint",
+        "writeups",
+        "education"
+      ],
+      "default": "web_security"
+    },
+    "cover_image": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "read_time": {
+      "type": "number",
+      "default": 5
+    }
+  },
+  "required": [
+    "title",
+    "content"
+  ]
+}

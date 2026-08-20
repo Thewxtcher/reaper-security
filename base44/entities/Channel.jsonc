@@ -1,0 +1,50 @@
+{
+  "name": "Channel",
+  "type": "object",
+  "properties": {
+    "server_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "voice",
+        "video",
+        "code",
+        "admin"
+      ],
+      "default": "text"
+    },
+    "category": {
+      "type": "string",
+      "default": "Text Channels"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "position": {
+      "type": "number",
+      "default": 0
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false
+    },
+    "slow_mode": {
+      "type": "number",
+      "default": 0
+    },
+    "capacity": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "server_id",
+    "name"
+  ]
+}

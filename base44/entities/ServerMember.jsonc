@@ -1,0 +1,60 @@
+{
+  "name": "ServerMember",
+  "type": "object",
+  "properties": {
+    "server_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "admin",
+        "moderator",
+        "member"
+      ],
+      "default": "member"
+    },
+    "role_color": {
+      "type": "string",
+      "default": "#9ca3af"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "idle",
+        "dnd",
+        "offline"
+      ],
+      "default": "online"
+    },
+    "nickname": {
+      "type": "string"
+    },
+    "is_muted": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_banned": {
+      "type": "boolean",
+      "default": false
+    },
+    "joined_at": {
+      "type": "string"
+    },
+    "last_seen": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "server_id",
+    "user_email"
+  ]
+}

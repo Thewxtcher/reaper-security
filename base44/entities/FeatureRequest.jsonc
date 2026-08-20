@@ -1,0 +1,60 @@
+{
+  "name": "FeatureRequest",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "ui",
+        "features",
+        "community",
+        "security",
+        "labs",
+        "performance",
+        "other"
+      ],
+      "default": "features"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "under_review",
+        "planned",
+        "in_progress",
+        "completed",
+        "rejected"
+      ],
+      "default": "proposed"
+    },
+    "votes": {
+      "type": "number",
+      "default": 0
+    },
+    "voted_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "admin_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "description"
+  ]
+}

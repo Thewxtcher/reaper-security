@@ -1,0 +1,86 @@
+{
+  "name": "UserSkill",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "xp": {
+      "type": "number",
+      "default": 0
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "elite"
+      ],
+      "default": "bronze"
+    },
+    "contribution_score": {
+      "type": "number",
+      "default": 0
+    },
+    "technical_score": {
+      "type": "number",
+      "default": 0
+    },
+    "collaboration_score": {
+      "type": "number",
+      "default": 0
+    },
+    "badges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "challenges_solved": {
+      "type": "number",
+      "default": 0
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bio": {
+      "type": "string"
+    },
+    "looking_to_collaborate": {
+      "type": "boolean",
+      "default": false
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "github_url": {
+      "type": "string"
+    },
+    "twitter_url": {
+      "type": "string"
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "CodeDoc",
+  "type": "object",
+  "properties": {
+    "channel_id": {
+      "type": "string"
+    },
+    "server_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "default": ""
+    },
+    "language": {
+      "type": "string",
+      "default": "javascript"
+    },
+    "last_editor_email": {
+      "type": "string"
+    },
+    "last_editor_name": {
+      "type": "string"
+    },
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "editor_email": {
+            "type": "string"
+          },
+          "editor_name": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "channel_id",
+    "server_id",
+    "name"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "WebRTCSignal",
+  "type": "object",
+  "properties": {
+    "channel_id": {
+      "type": "string"
+    },
+    "from_email": {
+      "type": "string"
+    },
+    "to_email": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "presence",
+        "offer",
+        "answer",
+        "ice-candidate",
+        "leave"
+      ]
+    },
+    "payload": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "channel_id",
+    "from_email",
+    "to_email",
+    "type"
+  ]
+}

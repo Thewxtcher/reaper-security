@@ -1,0 +1,45 @@
+{
+  "name": "ContactRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "web_application",
+        "network",
+        "security_audit",
+        "social_engineering",
+        "consulting",
+        "education",
+        "other"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "contacted",
+        "completed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "name",
+    "email",
+    "message"
+  ]
+}
